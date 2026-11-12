@@ -1,0 +1,177 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&family=Noto+Sans+Devanagari:wght@100..900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: #FF9933;
+    --color-secondary: #138808;
+    --color-accent: #000080;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-neutral-800 bg-neutral-50 antialiased;
+    font-feature-settings: "kern" 1;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+
+  /* Better focus styles for accessibility */
+  *:focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary-500;
+  }
+
+  /* Scrollbar styling */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-neutral-100;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-neutral-300 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-neutral-400;
+  }
+}
+
+@layer components {
+  .container-app {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-xl font-semibold text-sm transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 disabled:opacity-50 disabled:pointer-events-none cursor-pointer;
+  }
+
+  .btn-primary {
+    @apply btn bg-primary-500 text-white hover:bg-primary-600 shadow-primary focus-visible:outline-primary-500 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply btn bg-secondary-500 text-white hover:bg-secondary-600 shadow-secondary focus-visible:outline-secondary-500 active:scale-95;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-neutral-700 hover:bg-neutral-100 focus-visible:outline-neutral-400 active:scale-95;
+  }
+
+  .btn-outline {
+    @apply btn border-2 border-primary-500 text-primary-600 hover:bg-primary-50 focus-visible:outline-primary-500 active:scale-95;
+  }
+
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-neutral-100 transition-all duration-200;
+  }
+
+  .card-hover {
+    @apply card hover:shadow-card-hover hover:-translate-y-1;
+  }
+
+  .badge {
+    @apply inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium;
+  }
+
+  .input {
+    @apply w-full rounded-xl border border-neutral-200 bg-white px-4 py-2.5 text-sm text-neutral-800 placeholder:text-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all duration-200;
+  }
+
+  .select {
+    @apply input appearance-none cursor-pointer;
+  }
+
+  .section-title {
+    @apply text-3xl sm:text-4xl font-bold text-neutral-900;
+  }
+
+  .section-subtitle {
+    @apply text-lg text-neutral-600 mt-3;
+  }
+
+  /* Tri-color accent bar */
+  .tricolor-bar {
+    @apply h-1 bg-gradient-to-r from-primary-500 via-white to-secondary-500;
+  }
+
+  /* Chat specific */
+  .chat-bubble-user {
+    @apply bg-primary-500 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-[75%] shadow-sm;
+  }
+
+  .chat-bubble-assistant {
+    @apply bg-white text-neutral-800 rounded-2xl rounded-tl-sm px-4 py-3 max-w-[80%] shadow-card border border-neutral-100;
+  }
+
+  /* Stepper */
+  .step-connector {
+    @apply flex-1 h-0.5 bg-neutral-200 mx-2;
+  }
+  .step-connector-active {
+    @apply flex-1 h-0.5 bg-primary-400 mx-2;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-500 to-accent-500;
+  }
+
+  .gradient-text-saffron {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-primary-600 to-primary-400;
+  }
+
+  .animate-delay-100 { animation-delay: 0.1s; }
+  .animate-delay-200 { animation-delay: 0.2s; }
+  .animate-delay-300 { animation-delay: 0.3s; }
+  .animate-delay-400 { animation-delay: 0.4s; }
+
+  .writing-mode-vertical {
+    writing-mode: vertical-rl;
+  }
+}
+
+/* Typing indicator dots */
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: #94A3B8;
+  animation: bounceDot 1.2s infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes bounceDot {
+  0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+  40% { transform: scale(1.2); opacity: 1; }
+}
+
+/* Fade-in animation for page transitions */
+.page-enter {
+  animation: fadeInUp 0.4s ease-out both;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

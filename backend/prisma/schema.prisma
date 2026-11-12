@@ -1,0 +1,189 @@
+// backend/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model LegalAct {
+  id           String          @id @default(cuid())
+  title        String
+  actNumber    String?
+  year         Int
+  jurisdiction String          // "CENTRAL" | "STATE"
+  state        String?
+  category     String          // e.g. "LABOUR", "WOMEN", "CRIMINAL"
+  sourceUrl    String
+  status       String          @default("ACTIVE")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  sections     LegalSection[]
+  amendments   Amendment[]
+}
+
+model LegalSection {
+  id              String               @id @default(cuid())
+  sectionNumber   String
+  title           String?
+  originalText    String               @db.Text
+  simplifiedText  String               @db.Text
+  effectiveDate   DateTime?
+  actId           String
+  act             LegalAct             @relation(fields: [actId], references: [id])
+  rights          SectionRight[]
+  beneficiaries   SectionBeneficiary[]
+  remedies        LegalRemedy[]
+  translations    Translation[]
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+
+  @@unique([actId, sectionNumber])
+}
+
+model RightCategory {
+  id          String         @id @default(cuid())
+  name        String         @unique
+  slug        String         @unique
+  description String
+  icon        String?
+  sections    SectionRight[]
+}
+
+model Beneficiary {
+  id          String               @id @default(cuid())
+  name        String               @unique
+  slug        String               @unique
+  description String
+  icon        String?
+  sections    SectionBeneficiary[]
+}
+
+model SectionRight {
+  sectionId       String
+  rightCategoryId String
+  section         LegalSection  @relation(fields: [sectionId], references: [id])
+  rightCategory   RightCategory @relation(fields: [rightCategoryId], references: [id])
+
+  @@id([sectionId, rightCategoryId])
+}
+
+model SectionBeneficiary {
+  sectionId     String
+  beneficiaryId String
+  section       LegalSection @relation(fields: [sectionId], references: [id])
+  beneficiary   Beneficiary  @relation(fields: [beneficiaryId], references: [id])
+
+  @@id([sectionId, beneficiaryId])
+}
+
+model LegalRemedy {
+  id            String       @id @default(cuid())
+  sectionId     String
+  section       LegalSection @relation(fields: [sectionId], references: [id])
+  remedyType    String       // "COMPLAINT", "COURT", "TRIBUNAL", "AUTHORITY"
+  title         String
+  description   String       @db.Text
+  authority     String?
+  contactInfo   String?
+  timeLimit     String?
+  officialUrl   String?
+}
+
+model LegalAidProvider {
+  id           String   @id @default(cuid())
+  name         String
+  type         String   // "NALSA" | "SLSA" | "DLSA" | "NGO" | "CLINIC"
+  state        String?
+  district     String?
+  address      String?
+  phone        String?
+  email        String?
+  website      String?
+  eligibility  String?  @db.Text
+  services     String[] // array of service types
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+model ComplaintWorkflow {
+  id          String              @id @default(cuid())
+  category    String              // "LABOUR", "DOMESTIC_VIOLENCE", etc.
+  title       String
+  description String              @db.Text
+  steps       ComplaintStep[]
+  createdAt   DateTime            @default(now())
+}
+
+model ComplaintStep {
+  id          String            @id @default(cuid())
+  workflowId  String
+  workflow    ComplaintWorkflow @relation(fields: [workflowId], references: [id])
+  stepNumber  Int
+  title       String
+  description String            @db.Text
+  authority   String?
+  officialUrl String?
+  documents   String[]
+  timeLimit   String?
+}
+
+model Translation {
+  id          String       @id @default(cuid())
+  sectionId   String
+  section     LegalSection @relation(fields: [sectionId], references: [id])
+  language    String       // ISO 639-1 code: "hi", "mr", "ta", "te", "kn", "bn"
+  fieldName   String       // "simplifiedText" | "title"
+  content     String       @db.Text
+  verified    Boolean      @default(false)
+  createdAt   DateTime     @default(now())
+
+  @@unique([sectionId, language, fieldName])
+}
+
+model Amendment {
+  id            String   @id @default(cuid())
+  actId         String
+  act           LegalAct @relation(fields: [actId], references: [id])
+  amendedBy     String
+  year          Int
+  description   String   @db.Text
+  effectiveDate DateTime
+  createdAt     DateTime @default(now())
+}
+
+model Conversation {
+  id        String    @id @default(cuid())
+  sessionId String    @unique
+  language  String    @default("en")
+  messages  Message[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  role           String       // "user" | "assistant"
+  content        String       @db.Text
+  language       String?
+  metadata       Json?
+  createdAt      DateTime     @default(now())
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String?  @unique
+  phone     String?  @unique
+  password  String?
+  name      String?
+  state     String?
+  language  String   @default("en")
+  role      String   @default("USER") // "USER" | "ADMIN"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

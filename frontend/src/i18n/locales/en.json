@@ -1,0 +1,134 @@
+{
+  "nav": {
+    "home": "Home",
+    "chat": "AI Assistant",
+    "rights": "Know Your Rights",
+    "navigator": "Legal Navigator",
+    "aidFinder": "Find Legal Aid",
+    "eligibility": "Check Eligibility"
+  },
+  "hero": {
+    "tagline": "Know Your Rights. In Your Language.",
+    "taglineHi": "अपने अधिकार जानें। अपनी भाषा में।",
+    "taglineTa": "உங்கள் உரிமைகளை அறிந்து கொள்ளுங்கள்.",
+    "taglineBn": "আপনার অধিকার জানুন। আপনার ভাষায়।",
+    "subtitle": "Free legal awareness powered by AI. Understand Indian laws, file complaints, find legal aid — all in your mother tongue.",
+    "cta": "Ask a Legal Question",
+    "ctaSecondary": "Explore Your Rights"
+  },
+  "features": {
+    "chat": {
+      "title": "AI Legal Assistant",
+      "description": "Ask any legal question in your language and get clear, accurate answers with law citations."
+    },
+    "rights": {
+      "title": "Know Your Rights",
+      "description": "Explore constitutional rights, labour laws, women's rights, consumer protection and more."
+    },
+    "navigator": {
+      "title": "Legal Action Navigator",
+      "description": "Step-by-step guide to file complaints with the right authority for your problem."
+    },
+    "aidFinder": {
+      "title": "Find Legal Aid",
+      "description": "Locate free legal services, NALSA centres, and NGOs near you."
+    },
+    "eligibility": {
+      "title": "Eligibility Checker",
+      "description": "Check which government schemes and free legal aid programs you qualify for."
+    }
+  },
+  "howItWorks": {
+    "title": "How NyayaSaathi Works",
+    "step1": { "title": "Choose Your Language", "description": "Select from 20+ Indian languages including Hindi, Tamil, Bengali, Telugu, and more." },
+    "step2": { "title": "Describe Your Situation", "description": "Tell us your legal issue in simple words — no legal jargon needed." },
+    "step3": { "title": "Get Clear Answers", "description": "Receive simplified explanations with specific law citations and your rights." },
+    "step4": { "title": "Take Action", "description": "Follow step-by-step guidance to file complaints or access legal aid." }
+  },
+  "stats": {
+    "citizens": "Citizens Helped",
+    "laws": "Laws Explained",
+    "languages": "Languages Supported"
+  },
+  "chat": {
+    "placeholder": "Ask a legal question... (e.g., What are my rights as a tenant?)",
+    "disclaimer": "NyayaSaathi provides legal awareness only, not legal advice. For serious matters, consult a qualified lawyer.",
+    "newChat": "New Conversation",
+    "history": "Chat History",
+    "source": "Source",
+    "relatedRights": "Related Rights",
+    "takeAction": "Take Action",
+    "voiceComingSoon": "Voice input coming soon!",
+    "selectLanguage": "Select language",
+    "typing": "NyayaSaathi is thinking..."
+  },
+  "rights": {
+    "title": "Know Your Rights",
+    "subtitle": "Explore Indian laws and your constitutional rights across different areas of life.",
+    "search": "Search laws, rights, acts...",
+    "filterState": "Filter by State",
+    "filterBeneficiary": "Beneficiary Type",
+    "allStates": "All States",
+    "allTypes": "All Types",
+    "readOriginal": "Read Original",
+    "hideOriginal": "Hide Original",
+    "fileComplaint": "File a Complaint"
+  },
+  "navigator": {
+    "title": "Legal Action Navigator",
+    "subtitle": "Select your situation to get a step-by-step guide on what to do.",
+    "steps": "Steps",
+    "documents": "Required Documents",
+    "authority": "Authority",
+    "timeLimit": "Time Limit",
+    "officialLink": "Official Link",
+    "printGuide": "Print This Guide"
+  },
+  "aidFinder": {
+    "title": "Find Free Legal Aid",
+    "subtitle": "Connect with NALSA, State Legal Services Authorities, and NGOs offering free legal help.",
+    "selectState": "Select State",
+    "selectDistrict": "Select District",
+    "category": "Type of Help Needed",
+    "eligibilityCheck": "Check NALSA Eligibility",
+    "phone": "Phone",
+    "address": "Address",
+    "website": "Website"
+  },
+  "eligibility": {
+    "title": "Eligibility Checker",
+    "subtitle": "Find out which schemes and legal aid programs you qualify for.",
+    "step1": "Personal Information",
+    "step2": "Your Situation",
+    "step3": "Your Results",
+    "state": "State",
+    "income": "Annual Family Income",
+    "category": "Category",
+    "situation": "Legal Situation",
+    "checkNow": "Check Eligibility",
+    "back": "Back",
+    "next": "Next",
+    "eligible": "You're Eligible",
+    "notEligible": "May Not Qualify",
+    "viewScheme": "View Scheme Details"
+  },
+  "footer": {
+    "disclaimer": "NyayaSaathi provides legal information and awareness only. It is not a substitute for professional legal advice. For serious legal matters, please consult a qualified advocate.",
+    "nalsa": "National Legal Services Authority",
+    "rights": "All rights reserved.",
+    "madeWith": "Made with ❤️ for every Indian citizen"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Something went wrong. Please try again.",
+    "noResults": "No results found.",
+    "back": "Back",
+    "viewAll": "View All",
+    "close": "Close",
+    "search": "Search",
+    "clear": "Clear",
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "learnMore": "Learn More"
+  }
+}
