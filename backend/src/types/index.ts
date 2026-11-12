@@ -34,10 +34,14 @@ export interface ChatResponse {
 }
 
 export interface LegalSourceRef {
-  actTitle: string;
-  sectionNumber: string;
+  act?: string;
+  actTitle?: string;
+  section?: string;
+  sectionNumber?: string;
+  title?: string;
   sectionTitle?: string;
   url?: string;
+  sourceUrl?: string;
 }
 
 export interface SuggestedAction {

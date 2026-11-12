@@ -10,8 +10,7 @@ async function bootstrap(): Promise<void> {
     await prisma.$connect();
     console.log('✅  PostgreSQL connected via Prisma');
   } catch (err) {
-    console.error('❌  Database connection failed:', err);
-    process.exit(1);
+    console.warn('⚠️  Database connection warning (will retry on query):', (err as any)?.message || err);
   }
 
   const app = createApp();
