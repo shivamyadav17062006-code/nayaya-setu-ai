@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { supabaseService } from '../services/supabaseService';
 
 const prisma = new PrismaClient();
 
@@ -78,6 +79,28 @@ const FALLBACK_WORKFLOWS = [
 
 export async function listWorkflows(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
+    // 1. Try Supabase
+    const supabaseWfs = await supabaseService.getWorkflows();
+    if (supabaseWfs && supabaseWfs.length > 0) {
+      const formatted = supabaseWfs.map((w: any) => ({
+        id: w.id,
+        title: w.title,
+        description: w.description,
+        category: 'LABOUR',
+        steps: (w.workflow_steps || []).map((s: any) => ({
+          id: s.id,
+          stepNumber: s.step_number,
+          title: s.title,
+          description: s.instructions,
+          documents: s.required_documents,
+          officialUrl: s.official_url,
+        })),
+      }));
+      res.status(200).json({ success: true, data: formatted });
+      return;
+    }
+
+    // 2. Try Prisma
     const workflows = await prisma.complaintWorkflow.findMany({
       include: {
         steps: {
@@ -92,7 +115,6 @@ export async function listWorkflows(_req: Request, res: Response, next: NextFunc
       data: workflows.length > 0 ? workflows : FALLBACK_WORKFLOWS,
     });
   } catch (err) {
-    console.warn('Prisma query failed in listWorkflows, using fallback data:', (err as any)?.message);
     res.status(200).json({
       success: true,
       data: FALLBACK_WORKFLOWS,
@@ -101,10 +123,33 @@ export async function listWorkflows(_req: Request, res: Response, next: NextFunc
 }
 
 export async function getWorkflowByCategory(req: Request, res: Response, next: NextFunction): Promise<void> {
-  try {
-    const { category } = req.params;
-    const normalizedCategory = category.toUpperCase();
+  const { category } = req.params;
+  const normalizedCategory = category.toUpperCase();
 
+  try {
+    // 1. Try Supabase
+    const supabaseWfs = await supabaseService.getWorkflows(category);
+    if (supabaseWfs && supabaseWfs.length > 0) {
+      const w = supabaseWfs[0];
+      const formatted = {
+        id: w.id,
+        title: w.title,
+        description: w.description,
+        category: normalizedCategory,
+        steps: (w.workflow_steps || []).map((s: any) => ({
+          id: s.id,
+          stepNumber: s.step_number,
+          title: s.title,
+          description: s.instructions,
+          documents: s.required_documents,
+          officialUrl: s.official_url,
+        })),
+      };
+      res.status(200).json({ success: true, data: formatted });
+      return;
+    }
+
+    // 2. Try Prisma
     const workflow = await prisma.complaintWorkflow.findFirst({
       where: {
         category: {
@@ -135,8 +180,6 @@ export async function getWorkflowByCategory(req: Request, res: Response, next: N
       error: `No workflow found for category: ${category}`,
     });
   } catch (err) {
-    const { category } = req.params;
-    const normalizedCategory = category.toUpperCase();
     const fallback = FALLBACK_WORKFLOWS.find(w => w.category === normalizedCategory);
     if (fallback) {
       res.status(200).json({ success: true, data: fallback });

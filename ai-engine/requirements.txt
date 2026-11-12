@@ -16,3 +16,4 @@ pydantic-settings>=2.1.0
 httpx>=0.25.2
 python-multipart>=0.0.6
 langdetect>=1.0.9
+supabase>=2.0.0

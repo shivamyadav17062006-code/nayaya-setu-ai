@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { supabaseService } from '../services/supabaseService';
 
 const prisma = new PrismaClient();
 
@@ -80,20 +81,44 @@ export async function getLegalAidProviders(
   const skip = (page - 1) * limit;
 
   try {
-    const where: Record<string, unknown> = { isActive: true };
+    // 1. Try Supabase
+    const supabaseProviders = await supabaseService.getLegalAidProviders(state);
+    if (supabaseProviders && supabaseProviders.length > 0) {
+      const formatted = supabaseProviders.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        type: p.provider_type,
+        state: p.state,
+        district: p.district,
+        address: p.address,
+        phone: p.phone ? [p.phone] : ['15100'],
+        email: p.email,
+        website: p.website,
+        services: ['Free Legal Aid', 'Legal Representation', 'Lok Adalat'],
+        eligibility: p.eligibility_information,
+        isActive: true,
+      }));
 
-    if (state) {
-      where['state'] = { equals: state.trim(), mode: 'insensitive' };
+      res.status(200).json({
+        success: true,
+        data: formatted,
+        meta: {
+          total: formatted.length,
+          page: 1,
+          limit,
+          totalPages: 1,
+          filters: { state, district, type: providerType, category },
+        },
+      });
+      return;
     }
-    if (district) {
-      where['district'] = { contains: district.trim(), mode: 'insensitive' };
-    }
-    if (providerType) {
-      where['type'] = { equals: providerType.trim().toUpperCase() };
-    }
-    if (category) {
-      where['services'] = { has: category.trim().toUpperCase() };
-    }
+
+    // 2. Try Prisma
+    const where: Record<string, unknown> = { isActive: true };
+    if (state) where['state'] = { equals: state.trim(), mode: 'insensitive' };
+    if (district) where['district'] = { contains: district.trim(), mode: 'insensitive' };
+    if (providerType) where['type'] = { equals: providerType.trim().toUpperCase() };
+    if (category) where['services'] = { has: category.trim().toUpperCase() };
 
     const [providers, total] = await Promise.all([
       prisma.legalAidProvider.findMany({

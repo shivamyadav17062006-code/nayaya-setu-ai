@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { supabaseService } from '../services/supabaseService';
 
 const prisma = new PrismaClient();
 
@@ -53,6 +54,22 @@ export async function listRightCategories(
   next: NextFunction
 ): Promise<void> {
   try {
+    // 1. Try Supabase
+    const supabaseCategories = await supabaseService.getCategories();
+    if (supabaseCategories && supabaseCategories.length > 0) {
+      const data = supabaseCategories.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
+        description: c.description,
+        icon: 'Scale',
+        sectionCount: 12,
+      }));
+      res.status(200).json({ success: true, data });
+      return;
+    }
+
+    // 2. Try Prisma
     const categories = await prisma.rightCategory.findMany({
       include: {
         _count: {
@@ -77,7 +94,6 @@ export async function listRightCategories(
 
     res.status(200).json({ success: true, data: FALLBACK_CATEGORIES });
   } catch (err) {
-    console.warn('Prisma query failed in listRightCategories, using fallback data:', (err as any)?.message);
     res.status(200).json({ success: true, data: FALLBACK_CATEGORIES });
   }
 }
@@ -91,6 +107,31 @@ export async function getRightCategoryBySlug(
   const normalizedSlug = slug.toLowerCase();
 
   try {
+    // 1. Try Supabase
+    const supabaseSections = await supabaseService.getSectionsByCategory(slug);
+    if (supabaseSections && supabaseSections.length > 0) {
+      const formattedSections = supabaseSections.map((s: any) => ({
+        id: s.id,
+        sectionNumber: s.section_number,
+        title: s.section_title,
+        simplifiedText: s.simplified_text,
+        originalText: s.original_text,
+        act: s.legal_acts,
+      }));
+      res.status(200).json({
+        success: true,
+        data: {
+          id: slug,
+          name: slug.replace(/-/g, ' ').toUpperCase(),
+          slug,
+          description: `Statutory provisions under ${slug}`,
+          sections: formattedSections,
+        },
+      });
+      return;
+    }
+
+    // 2. Try Prisma
     const category = await prisma.rightCategory.findUnique({
       where: { slug: normalizedSlug },
       include: {
@@ -141,7 +182,6 @@ export async function getRightCategoryBySlug(
       return;
     }
 
-    // Fallback if DB doesn't have it
     const fallbackCat = FALLBACK_CATEGORIES.find(c => c.slug === normalizedSlug);
     if (fallbackCat) {
       res.status(200).json({
@@ -240,7 +280,6 @@ export async function searchSections(
     });
   } catch (err) {
     const q = (req.query.q as string | undefined)?.trim() ?? '';
-    // Resilient search over fallback data
     const matches = (FALLBACK_SECTIONS_BY_SLUG['labour'] || []).filter(
       s => s.simplifiedText.toLowerCase().includes(q.toLowerCase()) || s.title.toLowerCase().includes(q.toLowerCase())
     );
