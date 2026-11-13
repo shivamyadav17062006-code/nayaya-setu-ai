@@ -6,6 +6,7 @@ import morgan from 'morgan';
 import rateLimit from 'express-rate-limit';
 import { router } from './routes/index';
 import { errorHandler } from './middleware/errorHandler';
+import { isSupabaseConfigured, supabaseService } from './services/supabaseService';
 
 export function createApp(): Application {
   const app = express();
@@ -79,12 +80,22 @@ export function createApp(): Application {
   app.use('/api/chat', chatLimiter);
 
   // ---- Health Check ----
-  app.get('/health', (_req, res) => {
+  app.get('/health', async (_req, res) => {
+    const supabaseConnected = isSupabaseConfigured ? await supabaseService.ping() : false;
+
     res.json({
       status: 'ok',
       service: 'nyayasaathi-backend',
       timestamp: new Date().toISOString(),
       version: process.env.npm_package_version ?? '1.0.0',
+      dependencies: {
+        supabase: isSupabaseConfigured
+          ? supabaseConnected
+            ? 'connected'
+            : 'configured-but-unreachable'
+          : 'not-configured',
+        aiEngine: process.env.AI_ENGINE_URL ?? 'http://localhost:8001',
+      },
     });
   });
 

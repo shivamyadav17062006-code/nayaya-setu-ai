@@ -14,7 +14,7 @@ async function bootstrap(): Promise<void> {
   }
 
   const app = createApp();
-  const port = parseInt(process.env.PORT ?? '4000', 10);
+  const port = parseInt(process.env.PORT ?? '8000', 10);
 
   const server = app.listen(port, () => {
     console.log(`🚀  NyayaSaathi API running at http://localhost:${port}`);

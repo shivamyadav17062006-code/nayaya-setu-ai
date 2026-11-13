@@ -141,32 +141,88 @@ CREATE INDEX IF NOT EXISTS legal_chunks_embedding_idx
 ON legal_chunks 
 USING hnsw (embedding vector_cosine_ops);
 
--- 7.4 Vector Similarity Match Function (for RAG Retrieval)
+-- 7.4 Unique chunk identity so ingestion can upsert idempotently
+DELETE FROM legal_chunks a
+USING legal_chunks b
+WHERE a.ctid < b.ctid
+  AND a.section_id IS NOT DISTINCT FROM b.section_id
+  AND a.chunk_number = b.chunk_number
+  AND a.language IS NOT DISTINCT FROM b.language;
+
+CREATE UNIQUE INDEX IF NOT EXISTS legal_chunks_section_chunk_language_key
+ON legal_chunks (section_id, chunk_number, language);
+
+-- 7.5 Vector Similarity Match Function (for RAG Retrieval)
+-- Returns the provision text plus the act/section metadata the AI engine
+-- needs in a single round trip.
+DROP FUNCTION IF EXISTS match_legal_chunks(vector, integer);
+DROP FUNCTION IF EXISTS match_legal_chunks(vector, integer, double precision);
+
 CREATE OR REPLACE FUNCTION match_legal_chunks (
     query_embedding vector(384),
-    match_count INT DEFAULT 5
+    match_count INT DEFAULT 5,
+    min_similarity FLOAT DEFAULT 0.0
 )
 RETURNS TABLE (
     id UUID,
-    content TEXT,
     section_id UUID,
+    content TEXT,
+    chunk_number INT,
+    language TEXT,
     source_url TEXT,
-    similarity FLOAT
+    similarity FLOAT,
+    section_number TEXT,
+    section_title TEXT,
+    simplified_text TEXT,
+    original_text TEXT,
+    act_title TEXT,
+    act_year INT,
+    act_source_url TEXT,
+    categories TEXT
 )
 LANGUAGE SQL
 STABLE
 AS $$
     SELECT
         lc.id,
-        lc.content,
         lc.section_id,
+        lc.content,
+        lc.chunk_number,
+        lc.language,
         lc.source_url,
-        1 - (lc.embedding <=> query_embedding) AS similarity
+        1 - (lc.embedding <=> query_embedding) AS similarity,
+        ls.section_number,
+        ls.section_title,
+        ls.simplified_text,
+        ls.original_text,
+        la.title AS act_title,
+        la.year AS act_year,
+        la.source_url AS act_source_url,
+        (
+            SELECT string_agg(rc.name, ', ' ORDER BY rc.name)
+            FROM section_categories sc
+            JOIN right_categories rc ON rc.id = sc.category_id
+            WHERE sc.section_id = ls.id
+        ) AS categories
     FROM legal_chunks lc
+    JOIN legal_sections ls ON ls.id = lc.section_id
+    JOIN legal_acts la ON la.id = ls.act_id
     WHERE lc.embedding IS NOT NULL
+      AND 1 - (lc.embedding <=> query_embedding) >= min_similarity
     ORDER BY lc.embedding <=> query_embedding
     LIMIT match_count;
 $$;
+
+GRANT EXECUTE ON FUNCTION match_legal_chunks(vector, integer, double precision)
+TO anon, authenticated, service_role;
+
+-- 7.6 Supporting indexes for the joins above
+CREATE INDEX IF NOT EXISTS legal_chunks_section_id_idx ON legal_chunks (section_id);
+CREATE INDEX IF NOT EXISTS legal_sections_act_id_idx ON legal_sections (act_id);
+CREATE INDEX IF NOT EXISTS section_categories_category_id_idx ON section_categories (category_id);
+CREATE INDEX IF NOT EXISTS section_beneficiaries_beneficiary_id_idx ON section_beneficiaries (beneficiary_id);
+CREATE INDEX IF NOT EXISTS workflow_steps_workflow_id_idx ON workflow_steps (workflow_id);
+CREATE INDEX IF NOT EXISTS complaint_workflows_category_id_idx ON complaint_workflows (category_id);
 
 -- ============================================================================
 -- STEP 8: Row Level Security (RLS) & Access Policies
@@ -406,9 +462,19 @@ INSERT INTO workflow_steps (workflow_id, step_number, title, instructions, requi
      'https://nalsa.gov.in')
 ON CONFLICT (workflow_id, step_number) DO UPDATE SET instructions = EXCLUDED.instructions;
 
--- Insert Legal Aid Providers
-INSERT INTO legal_aid_providers (name, provider_type, state, district, address, phone, email, website, eligibility_information, verified) VALUES
-    ('National Legal Services Authority (NALSA)', 'NALSA', 'Delhi', 'New Delhi', 'B-Block, Additional Office Complex, Supreme Court of India, New Delhi - 110001', '15100', 'nalsa-dla@nic.in', 'https://nalsa.gov.in', 'All women, children, SC/ST, custody inmates, disabled, industrial workmen, and citizens with annual income below statutory limits.', TRUE),
-    ('Maharashtra State Legal Services Authority (MSLSA)', 'SLSA', 'Maharashtra', 'Mumbai', 'High Court PWD Building, Fort, Mumbai - 400032', '022-22691395', 'mslsa-hc@nic.in', 'https://legalservices.maharashtra.gov.in', 'Maharashtra residents meeting Section 12 criteria or annual income below ₹3,00,000.', TRUE),
-    ('Delhi State Legal Services Authority (DSLSA)', 'SLSA', 'Delhi', 'Central', 'Central Office, Patiala House Courts Complex, New Delhi - 110001', '1516', 'dslsa-phc@nic.in', 'https://dslsa.org', 'Delhi residents with income below ₹3,00,000 or falling in protected classes under Section 12.', TRUE)
-ON CONFLICT DO NOTHING;
+-- Insert Legal Aid Providers (fixed ids make this seed idempotent)
+INSERT INTO legal_aid_providers (id, name, provider_type, state, district, address, phone, email, website, eligibility_information, verified) VALUES
+    ('d0000000-0000-0000-0000-000000000001', 'National Legal Services Authority (NALSA)', 'NALSA', 'Delhi', 'New Delhi', 'B-Block, Additional Office Complex, Supreme Court of India, New Delhi - 110001', '15100', 'nalsa-dla@nic.in', 'https://nalsa.gov.in', 'All women, children, SC/ST, custody inmates, disabled, industrial workmen, and citizens with annual income below statutory limits.', TRUE),
+    ('d0000000-0000-0000-0000-000000000002', 'Maharashtra State Legal Services Authority (MSLSA)', 'SLSA', 'Maharashtra', 'Mumbai', 'High Court PWD Building, Fort, Mumbai - 400032', '022-22691395', 'mslsa-hc@nic.in', 'https://legalservices.maharashtra.gov.in', 'Maharashtra residents meeting Section 12 criteria or annual income below ₹3,00,000.', TRUE),
+    ('d0000000-0000-0000-0000-000000000003', 'Delhi State Legal Services Authority (DSLSA)', 'SLSA', 'Delhi', 'Central', 'Central Office, Patiala House Courts Complex, New Delhi - 110001', '1516', 'dslsa-phc@nic.in', 'https://dslsa.org', 'Delhi residents with income below ₹3,00,000 or falling in protected classes under Section 12.', TRUE)
+ON CONFLICT (id) DO UPDATE SET
+    name = EXCLUDED.name,
+    provider_type = EXCLUDED.provider_type,
+    state = EXCLUDED.state,
+    district = EXCLUDED.district,
+    address = EXCLUDED.address,
+    phone = EXCLUDED.phone,
+    email = EXCLUDED.email,
+    website = EXCLUDED.website,
+    eligibility_information = EXCLUDED.eligibility_information,
+    verified = EXCLUDED.verified;

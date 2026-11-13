@@ -172,37 +172,49 @@ cp backend/.env.example backend/.env
 cp ai-engine/.env.example ai-engine/.env
 ```
 
-### 3. Start Database via Docker
+### 3. Create the Supabase Schema
+Run [`supabase/schema.sql`](./supabase/schema.sql) in the Supabase SQL Editor. See
+[`supabase/README.md`](./supabase/README.md) for the full walkthrough.
+
+The script creates the 10 legal tables, RLS policies, the HNSW vector index, the
+`match_legal_chunks()` RPC, and verified seed provisions. It is idempotent — safe
+to re-run after updates.
+
 ```bash
-docker-compose up -d
+# Confirm the tables and RPC are reachable from the backend
+npm run db:check
 ```
-*Spins up PostgreSQL 16 with `pgvector` enabled on port 5432 and pgAdmin on port 5050.*
 
-### 4. Install Dependencies & Seed Legal Database
+*Optional local alternative:* `docker-compose up -d` starts PostgreSQL 16 with
+`pgvector` on port 5432 and pgAdmin on port 5050, then run the same SQL against it.
+
+### 4. Install Dependencies & Generate Embeddings
 ```bash
-# In backend
-cd backend
 npm install
-npx prisma generate
-npx prisma db push
-npm run db:seed
-npm run dev
 
-# In frontend (in a separate terminal)
-cd ../frontend
-npm install
-npm run dev
-
-# In ai-engine (in a separate terminal)
-cd ../ai-engine
+# Generate pgvector embeddings for the seeded legal sections
+cd ai-engine
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-python main.py
+python embedding.py       # add --force to re-embed existing sections
+```
+
+### 5. Run All Three Services
+```bash
+# From the repository root — starts the AI engine, backend and frontend
+npm run dev:full
+```
+
+Or run them individually:
+
+```bash
+npm run dev:ai   # FastAPI AI engine on :8001
+npm run dev      # Express backend on :8000 + Vite frontend on :3000
 ```
 
 - **Frontend App**: `http://localhost:3000`
-- **Backend API**: `http://localhost:4000`
+- **Backend API**: `http://localhost:8000/api`
 - **AI Engine Docs**: `http://localhost:8001/docs`
 
 ---

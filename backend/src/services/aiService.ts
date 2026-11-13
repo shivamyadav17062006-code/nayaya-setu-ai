@@ -14,6 +14,8 @@ export interface AIResponsePayload {
     act: string;
     section: string;
     title?: string;
+    year?: number;
+    relevance?: string;
     sourceUrl?: string;
   }>;
   nextSteps?: string[];
@@ -153,13 +155,8 @@ ${INDIAN_LEGAL_KNOWLEDGE}
 }
 
 export async function queryAIEngine(params: QueryParams): Promise<AIResponsePayload> {
-  // 1. First try Gemini direct API if configured
-  if (GEMINI_API_KEY) {
-    const geminiResult = await callGeminiDirect(params);
-    if (geminiResult) return geminiResult;
-  }
-
-  // 2. Try Python AI engine if running
+  // 1. Prefer the Python AI engine: it retrieves verified provisions from
+  //    Supabase pgvector before generating, which is the only grounded path.
   try {
     const res = await axios.post(`${AI_ENGINE_URL}/query`, {
       message: params.query,
@@ -167,20 +164,35 @@ export async function queryAIEngine(params: QueryParams): Promise<AIResponsePayl
       session_id: params.session_id,
       history: params.history,
     }, {
-      timeout: 5000,
+      timeout: 30000,
     });
 
     return {
       answer: res.data.answer,
       language: res.data.language || params.language,
-      sources: res.data.citations,
+      sources: (res.data.citations ?? []).map((citation: any) => ({
+        act: citation.act,
+        section: citation.section,
+        year: citation.year,
+        title: citation.section,
+        relevance: citation.relevance,
+        sourceUrl: citation.source_url,
+      })),
       nextSteps: res.data.next_steps,
       legalAidSuggested: res.data.legal_aid_suggested,
     };
   } catch (error: any) {
-    console.warn('AI Engine unavailable, falling back to smart legal rule engine response:', error.message);
-    
-    // Deterministic fallback response for resilience
+    console.warn('AI Engine unavailable, trying direct LLM:', error.message);
+  }
+
+  // 2. Direct Gemini fallback if the RAG engine is not running.
+  if (GEMINI_API_KEY) {
+    const geminiResult = await callGeminiDirect(params);
+    if (geminiResult) return geminiResult;
+  }
+
+  // 3. Deterministic fallback response when no LLM is reachable
+  {
     const isHindi = params.language === 'hi';
     const isLabour = /salary|wage|employer|kaam|paisa|vetan|dihadi/i.test(params.query);
     const isWomen = /domestic|violence|patni|aurat|marpeet|dahej|harassment/i.test(params.query);

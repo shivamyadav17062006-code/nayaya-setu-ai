@@ -75,28 +75,92 @@ const FALLBACK_WORKFLOWS = [
       },
     ],
   },
+  {
+    id: 'wf-consumer',
+    category: 'CONSUMER',
+    title: 'Consumer Complaint against Defective Goods or Deficient Service',
+    description: 'Two-stage grievance process under the Consumer Protection Act, 2019 using the National Consumer Helpline and the e-Daakhil portal.',
+    steps: [
+      {
+        id: 'c1',
+        stepNumber: 1,
+        title: 'Preserve Purchase and Complaint Records',
+        description: 'Keep the invoice, warranty card, delivery receipt, photographs of the defect, and all written communication with the seller.',
+        documents: ['Tax invoice', 'Warranty card', 'Photos or videos of the defect', 'Customer support ticket'],
+      },
+      {
+        id: 'c2',
+        stepNumber: 2,
+        title: 'Raise a Written Complaint with the Seller',
+        description: 'Send a written complaint to the seller or e-commerce platform and allow a reasonable time for repair, replacement or refund.',
+        documents: ['Complaint copy', 'Proof of dispatch'],
+        timeLimit: '15 days',
+      },
+      {
+        id: 'c3',
+        stepNumber: 3,
+        title: 'Escalate to the National Consumer Helpline',
+        description: 'Register the grievance on consumerhelpline.gov.in or dial 1915. Many registered companies resolve complaints at this stage.',
+        authority: 'National Consumer Helpline (NCH)',
+        officialUrl: 'https://consumerhelpline.gov.in',
+      },
+      {
+        id: 'c4',
+        stepNumber: 4,
+        title: 'File a Complaint before the District Commission',
+        description: 'If unresolved, file a complaint electronically on the e-Daakhil portal before the District Consumer Disputes Redressal Commission.',
+        authority: 'District Consumer Disputes Redressal Commission',
+        officialUrl: 'https://edaakhil.nic.in',
+      },
+    ],
+  },
 ];
+
+function normalizeStep(step: any, index: number) {
+  const stepNumber = step.stepNumber ?? step.step_number ?? index + 1;
+  return {
+    id: step.id ?? `step-${stepNumber}`,
+    stepNumber,
+    title: step.title ?? `Step ${stepNumber}`,
+    description: step.description ?? step.instructions ?? '',
+    requiredDocuments:
+      step.requiredDocuments ?? step.documents ?? step.required_documents ?? [],
+    authorityName:
+      step.authorityName ?? step.authority ?? step.target_authority ?? 'Competent Authority',
+    officialLink: step.officialLink ?? step.officialUrl ?? step.official_url,
+    timeLimitDays: step.timeLimitDays,
+    tips: step.tips,
+  };
+}
+
+function normalizeWorkflow(workflow: any) {
+  const rawSteps = workflow.steps ?? workflow.workflow_steps ?? [];
+  const steps = (Array.isArray(rawSteps) ? rawSteps : []).map(normalizeStep);
+  const categoryId =
+    workflow.categoryId ??
+    workflow.categorySlug ??
+    (typeof workflow.category === 'string' ? workflow.category.toLowerCase() : 'general');
+
+  return {
+    id: workflow.id,
+    categoryId,
+    category: categoryId.toUpperCase(),
+    title: workflow.title,
+    description: workflow.description ?? '',
+    targetAuthority: workflow.target_authority ?? workflow.targetAuthority,
+    officialUrl: workflow.officialUrl ?? workflow.official_url,
+    totalSteps: steps.length,
+    estimatedDays: workflow.estimatedDays ?? 0,
+    steps,
+  };
+}
 
 export async function listWorkflows(_req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     // 1. Try Supabase
     const supabaseWfs = await supabaseService.getWorkflows();
     if (supabaseWfs && supabaseWfs.length > 0) {
-      const formatted = supabaseWfs.map((w: any) => ({
-        id: w.id,
-        title: w.title,
-        description: w.description,
-        category: 'LABOUR',
-        steps: (w.workflow_steps || []).map((s: any) => ({
-          id: s.id,
-          stepNumber: s.step_number,
-          title: s.title,
-          description: s.instructions,
-          documents: s.required_documents,
-          officialUrl: s.official_url,
-        })),
-      }));
-      res.status(200).json({ success: true, data: formatted });
+      res.status(200).json({ success: true, data: supabaseWfs.map(normalizeWorkflow) });
       return;
     }
 
@@ -112,12 +176,12 @@ export async function listWorkflows(_req: Request, res: Response, next: NextFunc
 
     res.status(200).json({
       success: true,
-      data: workflows.length > 0 ? workflows : FALLBACK_WORKFLOWS,
+      data: (workflows.length > 0 ? workflows : FALLBACK_WORKFLOWS).map(normalizeWorkflow),
     });
   } catch (err) {
     res.status(200).json({
       success: true,
-      data: FALLBACK_WORKFLOWS,
+      data: FALLBACK_WORKFLOWS.map(normalizeWorkflow),
     });
   }
 }
@@ -130,22 +194,7 @@ export async function getWorkflowByCategory(req: Request, res: Response, next: N
     // 1. Try Supabase
     const supabaseWfs = await supabaseService.getWorkflows(category);
     if (supabaseWfs && supabaseWfs.length > 0) {
-      const w = supabaseWfs[0];
-      const formatted = {
-        id: w.id,
-        title: w.title,
-        description: w.description,
-        category: normalizedCategory,
-        steps: (w.workflow_steps || []).map((s: any) => ({
-          id: s.id,
-          stepNumber: s.step_number,
-          title: s.title,
-          description: s.instructions,
-          documents: s.required_documents,
-          officialUrl: s.official_url,
-        })),
-      };
-      res.status(200).json({ success: true, data: formatted });
+      res.status(200).json({ success: true, data: normalizeWorkflow(supabaseWfs[0]) });
       return;
     }
 
@@ -165,13 +214,13 @@ export async function getWorkflowByCategory(req: Request, res: Response, next: N
     });
 
     if (workflow) {
-      res.status(200).json({ success: true, data: workflow });
+      res.status(200).json({ success: true, data: normalizeWorkflow(workflow) });
       return;
     }
 
     const fallback = FALLBACK_WORKFLOWS.find(w => w.category === normalizedCategory);
     if (fallback) {
-      res.status(200).json({ success: true, data: fallback });
+      res.status(200).json({ success: true, data: normalizeWorkflow(fallback) });
       return;
     }
 
@@ -182,7 +231,7 @@ export async function getWorkflowByCategory(req: Request, res: Response, next: N
   } catch (err) {
     const fallback = FALLBACK_WORKFLOWS.find(w => w.category === normalizedCategory);
     if (fallback) {
-      res.status(200).json({ success: true, data: fallback });
+      res.status(200).json({ success: true, data: normalizeWorkflow(fallback) });
       return;
     }
     next(err);

@@ -241,8 +241,12 @@ export default function Navigator() {
             <p className="text-xs text-amber-900/80 leading-relaxed">{workflow.description}</p>
             <div className="flex items-center gap-4 text-[11px] font-semibold text-amber-900 pt-2">
               <span>Total Steps: {workflow.totalSteps}</span>
-              <span>•</span>
-              <span>Typical Resolution Timeline: ~{workflow.estimatedDays} days</span>
+              {workflow.estimatedDays > 0 && (
+                <>
+                  <span>•</span>
+                  <span>Typical Resolution Timeline: ~{workflow.estimatedDays} days</span>
+                </>
+              )}
             </div>
           </div>
 

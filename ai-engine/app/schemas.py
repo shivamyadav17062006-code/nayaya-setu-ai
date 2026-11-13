@@ -15,6 +15,7 @@ class Citation(BaseModel):
     section: str = Field(..., description="Section number / description")
     year: Optional[int] = Field(None, description="Year the act was passed")
     relevance: Optional[str] = Field(None, description="Why this section is relevant")
+    source_url: Optional[str] = Field(None, description="Official source of the provision")
 
 
 class SearchResult(BaseModel):
@@ -89,9 +90,10 @@ class EmbedRequest(BaseModel):
 
 
 class EmbedResponse(BaseModel):
-    id: str = Field(..., description="ID of the created LegalSectionVector record")
+    id: str = Field(..., description="Identifier for the embedding operation")
     section_id: Optional[str] = None
     embedding_dim: int
+    stored: bool = Field(default=False, description="True when the vector was upserted to Supabase")
     message: str = "Embedding stored successfully"
 
 

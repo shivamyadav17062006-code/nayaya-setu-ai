@@ -185,8 +185,8 @@ class LLMService:
             from langchain_google_genai import ChatGoogleGenerativeAI  # type: ignore
 
             llm = ChatGoogleGenerativeAI(
-                model="gemini-pro",
-                google_api_key=settings.GOOGLE_API_KEY,
+                model=settings.GEMINI_MODEL,
+                google_api_key=settings.GOOGLE_API_KEY or settings.GEMINI_API_KEY,
                 temperature=0.3,
                 convert_system_message_to_human=True,
             )

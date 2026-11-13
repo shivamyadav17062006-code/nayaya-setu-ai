@@ -62,6 +62,15 @@ const FALLBACK_PROVIDERS = [
   },
 ];
 
+function withProviderFields(provider: any) {
+  return {
+    ...provider,
+    servicesOffered: provider.servicesOffered ?? provider.services ?? [],
+    eligibilityCriteria: provider.eligibilityCriteria ?? provider.eligibility,
+    languages: provider.languages ?? ['English', 'Hindi', 'Regional Languages'],
+  };
+}
+
 export async function getLegalAidProviders(
   req: Request,
   res: Response,
@@ -82,9 +91,16 @@ export async function getLegalAidProviders(
 
   try {
     // 1. Try Supabase
-    const supabaseProviders = await supabaseService.getLegalAidProviders(state);
-    if (supabaseProviders && supabaseProviders.length > 0) {
-      const formatted = supabaseProviders.map((p: any) => ({
+    const supabaseResult = await supabaseService.getLegalAidProviders({
+      state: state?.trim(),
+      district: district?.trim(),
+      type: providerType?.trim(),
+      limit,
+      offset: skip,
+    });
+
+    if (supabaseResult && supabaseResult.data.length > 0) {
+      const formatted = supabaseResult.data.map((p: any) => ({
         id: p.id,
         name: p.name,
         type: p.provider_type,
@@ -95,7 +111,11 @@ export async function getLegalAidProviders(
         email: p.email,
         website: p.website,
         services: ['Free Legal Aid', 'Legal Representation', 'Lok Adalat'],
+        servicesOffered: ['Free Legal Aid', 'Legal Representation', 'Lok Adalat'],
         eligibility: p.eligibility_information,
+        eligibilityCriteria: p.eligibility_information,
+        languages: ['English', 'Hindi', 'Regional Languages'],
+        workingHours: 'Mon–Sat, 10:00–17:00',
         isActive: true,
       }));
 
@@ -103,10 +123,10 @@ export async function getLegalAidProviders(
         success: true,
         data: formatted,
         meta: {
-          total: formatted.length,
-          page: 1,
+          total: supabaseResult.total,
+          page,
           limit,
-          totalPages: 1,
+          totalPages: Math.ceil(supabaseResult.total / limit) || 1,
           filters: { state, district, type: providerType, category },
         },
       });
@@ -133,7 +153,7 @@ export async function getLegalAidProviders(
     if (providers && providers.length > 0) {
       res.status(200).json({
         success: true,
-        data: providers,
+        data: providers.map(withProviderFields),
         meta: {
           total,
           page,
@@ -154,7 +174,7 @@ export async function getLegalAidProviders(
 
     res.status(200).json({
       success: true,
-      data: filtered,
+      data: filtered.map(withProviderFields),
       meta: {
         total: filtered.length,
         page: 1,
@@ -172,7 +192,7 @@ export async function getLegalAidProviders(
 
     res.status(200).json({
       success: true,
-      data: filtered,
+      data: filtered.map(withProviderFields),
       meta: {
         total: filtered.length,
         page: 1,

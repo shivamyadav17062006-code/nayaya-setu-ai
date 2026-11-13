@@ -48,6 +48,41 @@ const FALLBACK_SECTIONS_BY_SLUG: Record<string, any[]> = {
   ],
 };
 
+function formatSupabaseSection(section: any) {
+  const act = Array.isArray(section.legal_acts) ? section.legal_acts[0] : section.legal_acts;
+  const beneficiaryTypes = (section.section_beneficiaries ?? [])
+    .map((link: any) => {
+      const beneficiary = Array.isArray(link.beneficiaries)
+        ? link.beneficiaries[0]
+        : link.beneficiaries;
+      return beneficiary?.name;
+    })
+    .filter(Boolean);
+
+  return {
+    id: section.id,
+    sectionNumber: section.section_number,
+    title: section.section_title ?? 'Statutory provision',
+    simplifiedText: section.simplified_text ?? '',
+    originalText: section.original_text ?? '',
+    actName: act?.title ?? 'Indian Statute',
+    year: act?.year ?? undefined,
+    jurisdiction: act?.jurisdiction,
+    sourceUrl: act?.source_url,
+    beneficiaryTypes,
+    act,
+  };
+}
+
+function withActFields(sections: any[]) {
+  return sections.map((section) => ({
+    ...section,
+    actName: section.actName ?? section.act?.title ?? 'Indian Statute',
+    year: section.year ?? section.act?.year,
+    beneficiaryTypes: section.beneficiaryTypes ?? [],
+  }));
+}
+
 export async function listRightCategories(
   _req: Request,
   res: Response,
@@ -57,13 +92,14 @@ export async function listRightCategories(
     // 1. Try Supabase
     const supabaseCategories = await supabaseService.getCategories();
     if (supabaseCategories && supabaseCategories.length > 0) {
-      const data = supabaseCategories.map((c: any) => ({
+      const data = supabaseCategories.map((c) => ({
         id: c.id,
         name: c.name,
-        slug: c.name.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        description: c.description,
+        slug: c.slug,
+        description: c.description ?? '',
         icon: 'Scale',
-        sectionCount: 12,
+        sectionCount: c.sectionCount,
+        beneficiaryTypes: [],
       }));
       res.status(200).json({ success: true, data });
       return;
@@ -108,27 +144,26 @@ export async function getRightCategoryBySlug(
 
   try {
     // 1. Try Supabase
-    const supabaseSections = await supabaseService.getSectionsByCategory(slug);
-    if (supabaseSections && supabaseSections.length > 0) {
-      const formattedSections = supabaseSections.map((s: any) => ({
-        id: s.id,
-        sectionNumber: s.section_number,
-        title: s.section_title,
-        simplifiedText: s.simplified_text,
-        originalText: s.original_text,
-        act: s.legal_acts,
-      }));
-      res.status(200).json({
-        success: true,
-        data: {
-          id: slug,
-          name: slug.replace(/-/g, ' ').toUpperCase(),
-          slug,
-          description: `Statutory provisions under ${slug}`,
-          sections: formattedSections,
-        },
-      });
-      return;
+    const supabaseCategory = await supabaseService.getCategoryBySlug(slug);
+    if (supabaseCategory) {
+      const supabaseSections = await supabaseService.getSectionsByCategoryId(
+        supabaseCategory.id
+      );
+
+      if (supabaseSections) {
+        res.status(200).json({
+          success: true,
+          data: {
+            id: supabaseCategory.id,
+            name: supabaseCategory.name,
+            slug: supabaseCategory.slug,
+            description: supabaseCategory.description ?? '',
+            icon: 'Scale',
+            sections: supabaseSections.map(formatSupabaseSection),
+          },
+        });
+        return;
+      }
     }
 
     // 2. Try Prisma
@@ -164,6 +199,9 @@ export async function getRightCategoryBySlug(
         title: sr.section.title,
         simplifiedText: sr.section.simplifiedText,
         originalText: sr.section.originalText,
+        actName: sr.section.act.title,
+        year: sr.section.act.year,
+        beneficiaryTypes: [],
         remedies: sr.section.remedies,
         act: sr.section.act,
       }));
@@ -188,7 +226,7 @@ export async function getRightCategoryBySlug(
         success: true,
         data: {
           ...fallbackCat,
-          sections: FALLBACK_SECTIONS_BY_SLUG[normalizedSlug] || [],
+          sections: withActFields(FALLBACK_SECTIONS_BY_SLUG[normalizedSlug] || []),
         },
       });
       return;
@@ -202,7 +240,7 @@ export async function getRightCategoryBySlug(
         success: true,
         data: {
           ...fallbackCat,
-          sections: FALLBACK_SECTIONS_BY_SLUG[normalizedSlug] || [],
+          sections: withActFields(FALLBACK_SECTIONS_BY_SLUG[normalizedSlug] || []),
         },
       });
       return;

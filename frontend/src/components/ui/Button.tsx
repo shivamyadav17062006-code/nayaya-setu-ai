@@ -1,6 +1,6 @@
 import { forwardRef, type ButtonHTMLAttributes } from 'react'
 import { cn } from '@/lib/utils'
-import Spinner from './Spinner'
+import { Spinner } from './Spinner'
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger'
 type ButtonSize = 'sm' | 'md' | 'lg' | 'icon'
@@ -58,7 +58,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}
       >
         {isLoading ? (
-          <Spinner size="sm" color={variant === 'ghost' || variant === 'outline' ? 'primary' : 'white'} />
+          <Spinner size="sm" />
         ) : (
           leftIcon
         )}

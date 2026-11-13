@@ -23,6 +23,13 @@ class Settings(BaseSettings):
         description="Async SQLAlchemy connection URL (must use asyncpg driver)",
     )
 
+    # ── Supabase API (used for pgvector RPC retrieval) ───────────────────────
+    SUPABASE_URL: str = Field(default="", description="Supabase project URL")
+    SUPABASE_ANON_KEY: str = Field(default="", description="Supabase anon public key")
+    SUPABASE_SERVICE_ROLE_KEY: str = Field(
+        default="", description="Supabase service-role key (server-side only)"
+    )
+
     # ── LLM ──────────────────────────────────────────────────────────────────
     LLM_PROVIDER: Literal["openai", "google", "mock"] = Field(
         default="mock",
@@ -30,6 +37,8 @@ class Settings(BaseSettings):
     )
     OPENAI_API_KEY: str = Field(default="", description="OpenAI API key")
     GOOGLE_API_KEY: str = Field(default="", description="Google Gemini API key")
+    GEMINI_API_KEY: str = Field(default="", description="Alias for GOOGLE_API_KEY")
+    GEMINI_MODEL: str = Field(default="gemini-2.5-flash", description="Gemini model id")
 
     # ── Embeddings ────────────────────────────────────────────────────────────
     EMBEDDING_MODEL: str = Field(
