@@ -1,6 +1,7 @@
 import apiClient from "./client";
+
 export const workflowsApi = {
-  getCategories: async () => {
+  getWorkflows: async () => {
     try {
       const { data } = await apiClient.get("/workflows");
       if (Array.isArray(data)) return data;
@@ -10,12 +11,20 @@ export const workflowsApi = {
       return [];
     }
   },
-  getWorkflow: async (categoryId) => {
-    const { data } = await apiClient.get(`/workflows/${categoryId}`);
+
+  getCategories: async () => {
+    return workflowsApi.getWorkflows();
+  },
+
+  getWorkflow: async (categoryOrId) => {
+    const { data } = await apiClient.get(`/workflows/${categoryOrId}`);
     return data?.data || data;
   },
+
   getWorkflowByCategory: async (category) => {
     const { data } = await apiClient.get(`/workflows/${category}`);
     return data?.data || data;
   }
 };
+
+export default workflowsApi;

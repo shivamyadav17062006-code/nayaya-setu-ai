@@ -27,6 +27,22 @@ export const authApi = {
   },
 
   /**
+   * Fetch latest profile from backend /api/auth/me
+   */
+  fetchProfile: async () => {
+    try {
+      const { data } = await apiClient.get('/auth/me');
+      if (data?.data?.user) {
+        localStorage.setItem('nyayasaathi_user', JSON.stringify(data.data.user));
+        return data.data.user;
+      }
+      return null;
+    } catch {
+      return null;
+    }
+  },
+
+  /**
    * Get cached active user profile from local storage.
    */
   getCurrentUser: () => {
@@ -41,9 +57,15 @@ export const authApi = {
   /**
    * Log out active user and clear session tokens.
    */
-  logout: () => {
-    localStorage.removeItem('nyayasaathi_token');
-    localStorage.removeItem('nyayasaathi_user');
+  logout: async () => {
+    try {
+      await apiClient.post('/auth/logout');
+    } catch {
+      // Ignore network errors on logout
+    } finally {
+      localStorage.removeItem('nyayasaathi_token');
+      localStorage.removeItem('nyayasaathi_user');
+    }
   },
 };
 

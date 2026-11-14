@@ -28,7 +28,8 @@ export function createApp() {
   }));
 
   // ---- CORS ----
-  const allowedOrigins = (process.env.CORS_ORIGINS ?? 'http://localhost:5173')
+  const defaultOrigins = 'http://localhost:3000,http://localhost:5173,http://127.0.0.1:3000,http://127.0.0.1:5173';
+  const allowedOrigins = (process.env.CORS_ORIGINS ?? defaultOrigins)
     .split(',')
     .map((o) => o.trim());
 
@@ -55,31 +56,48 @@ export function createApp() {
     app.use(morgan(process.env.NODE_ENV === 'production' ? 'combined' : 'dev'));
   }
 
-  // ---- Global Rate Limit ----
-  const globalLimiter = rateLimit({
-    windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS ?? '900000', 10),
-    max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS ?? '100', 10),
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: {
-      success: false,
-      error: 'Too many requests. Please try again later.',
-    },
-  });
-  app.use('/api', globalLimiter);
+  // ---- Rate Limiters (disabled during automated testing) ----
+  if (process.env.NODE_ENV !== 'test') {
+    // Global rate limit
+    const globalLimiter = rateLimit({
+      windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS ?? '900000', 10),
+      max: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS ?? '200', 10),
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: {
+        success: false,
+        error: 'Too many requests. Please try again later.',
+      },
+    });
+    app.use('/api', globalLimiter);
 
-  // ---- Stricter Rate Limit for Chat ----
-  const chatLimiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 20,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: {
-      success: false,
-      error: 'Chat rate limit exceeded. Please wait a moment.',
-    },
-  });
-  app.use('/api/chat', chatLimiter);
+    // Stricter rate limit for chat
+    const chatLimiter = rateLimit({
+      windowMs: 60 * 1000,
+      max: 30,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: {
+        success: false,
+        error: 'Chat rate limit exceeded. Please wait a moment.',
+      },
+    });
+    app.use('/api/chat', chatLimiter);
+
+    // Stricter rate limit for authentication (prevent brute force)
+    const authLimiter = rateLimit({
+      windowMs: 15 * 60 * 1000, // 15 minutes
+      max: 25,
+      standardHeaders: true,
+      legacyHeaders: false,
+      message: {
+        success: false,
+        error: 'Too many authentication attempts. Please try again later.',
+      },
+    });
+    app.use('/api/auth/login', authLimiter);
+    app.use('/api/auth/register', authLimiter);
+  }
 
   // ---- Health Check Handler ----
   const healthHandler = async (_req, res) => {
