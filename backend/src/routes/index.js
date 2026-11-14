@@ -5,6 +5,7 @@ import aidRouter from './aid.js';
 import workflowsRouter from './workflows.js';
 import eligibilityRouter from './eligibility.js';
 import authRouter from './auth.js';
+import constitutionRouter from './constitution.js';
 
 export const router = Router();
 
@@ -15,6 +16,7 @@ router.use('/aid', aidRouter);
 router.use('/workflows', workflowsRouter);
 router.use('/eligibility', eligibilityRouter);
 router.use('/auth', authRouter);
+router.use('/constitution', constitutionRouter);
 
 // API discovery & manifest endpoint
 router.get('/', (_req, res) => {

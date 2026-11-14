@@ -1,23 +1,34 @@
-import { classifyIntent } from './intentService.js';
+import { classifyIntent, GoalType } from './intentService.js';
 import { detectLanguage, SUPPORTED_LANGUAGES } from './languageService.js';
+import { normalizeQuery } from './queryNormalizer.js';
+import { embeddingService } from './embeddingService.js';
 import { legalService } from './legalService.js';
+import { citationValidator } from './citationValidator.js';
 import { providerManager } from '../providers/providerManager.js';
-import { buildSystemPrompt, NEXT_STEPS_BY_INTENT } from '../utils/prompts.js';
+import { buildSystemPrompt, formatUntrustedContext, NEXT_STEPS_BY_INTENT } from '../utils/prompts.js';
 import { env } from '../config/env.js';
 
 export class RAGService {
   /**
-   * Main RAG query workflow:
-   * 1. Detect language (or use specified ISO code)
-   * 2. Classify legal intent
-   * 3. Retrieve statutory chunks via pgvector / legalService
-   * 4. Synthesize grounded answer via providerManager (Gemini with fallback to Mock)
-   * 5. Extract genuine statutory citations and next steps
+   * Complete 10-Step Retrieval Augmented Generation Pipeline:
+   *
+   * 1. Language Detection (languageService.js)
+   * 2. Legal Intent & Goal Detection (intentService.js)
+   * 3. Question Normalization (queryNormalizer.js)
+   * 4. Embedding Generation (embeddingService.js)
+   * 5. Supabase Vector Search (match_legal_chunks pgvector)
+   * 6. Legal Document Retrieval (metadata filters, acts, sections)
+   * 7. Relevance Ranking & Deduplication (hybrid vector + lexical)
+   * 8. Verified Legal Context (isolated untrusted data block)
+   * 9. Gemini Generation (dedicated scenario prompt templates)
+   * 10. Citation Validation & Final Packaging (citationValidator.js)
    */
   async query({ message, language = 'en', intent = null, session_id = null }) {
     const startTime = Date.now();
 
-    // 1. Language detection
+    // ------------------------------------------------------------------------
+    // Step 1: Language Detection
+    // ------------------------------------------------------------------------
     let userLang = language || 'en';
     if (!language || userLang === 'en') {
       const detected = detectLanguage(message);
@@ -27,40 +38,57 @@ export class RAGService {
     }
     const langName = SUPPORTED_LANGUAGES[userLang]?.name || 'English';
 
-    // 2. Intent classification
-    let classifiedIntent = intent;
-    if (!classifiedIntent) {
-      const classification = await classifyIntent(message);
-      classifiedIntent = classification.intent || 'GENERAL';
+    // ------------------------------------------------------------------------
+    // Step 2: Legal Intent & Goal Detection
+    // ------------------------------------------------------------------------
+    const classification = classifyIntent(message);
+    const classifiedIntent = intent || classification.intent || 'GENERAL';
+    const goalType = classification.goal || GoalType.GENERAL_EXPLANATION;
+
+    // ------------------------------------------------------------------------
+    // Step 3: Question Normalization & Keyword Expansion
+    // ------------------------------------------------------------------------
+    const normalized = normalizeQuery(message);
+    const searchQuery = normalized.expanded || normalized.normalized || message;
+
+    // ------------------------------------------------------------------------
+    // Step 4: Embedding Generation (Consistent 384 dimensions)
+    // ------------------------------------------------------------------------
+    let queryEmbedding = null;
+    try {
+      queryEmbedding = await embeddingService.embedText(searchQuery);
+    } catch (err) {
+      console.warn('[RAGService] Embedding generation fallback:', err.message);
     }
 
-    // 3. Statutory Retrieval (Supabase pgvector)
-    const provisions = await legalService.retrieve(message, classifiedIntent, env.ragTopK);
+    // ------------------------------------------------------------------------
+    // Step 5 & 6 & 7: Supabase Vector Search, Document Retrieval & Ranking
+    // ------------------------------------------------------------------------
+    const retrievedProvisions = await legalService.retrieve(
+      searchQuery,
+      classifiedIntent,
+      env.ragTopK || 4,
+      queryEmbedding
+    );
 
-    const contextStr = provisions
-      .map(
-        (p) =>
-          `Act: ${p.act} (${p.year || 'n/a'})\n` +
-          `Section: ${p.section} — ${p.title}\n` +
-          `Statutory text: ${p.text}\n` +
-          `Simplified explanation: ${p.simplified}\n` +
-          `Legal Remedy: ${p.remedy || 'Approaching designated Authority / DLSA'}\n` +
-          `Official Link: ${p.source_url || 'https://indiacode.nic.in'}`
-      )
-      .join('\n\n---\n\n');
+    // ------------------------------------------------------------------------
+    // Step 8: Verified Legal Context (Structured & Untrusted Isolation)
+    // ------------------------------------------------------------------------
+    const contextStr = formatUntrustedContext(retrievedProvisions);
 
-    // 4. Prompt synthesis with strict zero-hallucination constraint
-    const systemPrompt = buildSystemPrompt(langName);
+    // ------------------------------------------------------------------------
+    // Step 9: Gemini Generation with Dedicated Scenario Prompt
+    // ------------------------------------------------------------------------
+    const systemPrompt = buildSystemPrompt(langName, goalType);
 
-    const userPrompt = `CONTEXT (Verified Indian statutory provisions retrieved for this query):
-${contextStr || 'No specific section match found in database. Rely strictly on general Indian constitutional rights under Article 39A and Legal Services Authorities Act, 1987.'}
+    const userPrompt = `${contextStr}
 
 ---
-CITIZEN INQUIRY: "${message}"
+CITIZEN QUESTION:
+"${message}"
 
-Please provide a compassionate, grounded explanation based strictly on the statutory CONTEXT above.`;
+Provide a compassionate, grounded explanation adhering strictly to the <retrieved_legal_context> above.`;
 
-    // 5. Generate Response via Provider Manager
     const genResult = await providerManager.generateContent({
       systemPrompt,
       userPrompt,
@@ -69,44 +97,31 @@ Please provide a compassionate, grounded explanation based strictly on the statu
       question: message,
     });
 
-    // 6. Assemble verified citations (never fabricated)
-    const citations = provisions.map((p) => ({
-      act: p.act,
-      section: p.section,
-      year: p.year || null,
-      title: p.title || p.section,
-      relevance: p.simplified || p.text,
-      source_url: p.source_url || 'https://www.indiacode.nic.in',
-    }));
+    // ------------------------------------------------------------------------
+    // Step 10: Citation Validation & Final Answer Packaging
+    // ------------------------------------------------------------------------
+    const validationResult = citationValidator.validateCitations(
+      retrievedProvisions,
+      genResult.answer,
+      message
+    );
 
-    // If no context matched, provide verified Article 39A baseline
-    const verifiedSources = citations.length > 0 ? citations : [
-      {
-        act: 'Constitution of India',
-        section: 'Article 39A',
-        year: 1950,
-        title: 'Equal justice and free legal aid',
-        relevance: 'Mandates the State to ensure justice is not denied to any citizen by reason of economic or other disabilities.',
-        source_url: 'https://legislative.gov.in/constitution-of-india',
-      },
-      {
-        act: 'Legal Services Authorities Act',
-        section: 'Section 12',
-        year: 1987,
-        title: 'Criteria for giving legal services',
-        relevance: 'Statutory entitlement to free court advocates for women, children, workers, and vulnerable groups.',
-        source_url: 'https://nalsa.gov.in',
-      },
-    ];
+    // Sanitize response to prevent fabricated section references
+    const sanitizedAnswer = citationValidator.sanitizeResponseText(
+      genResult.answer,
+      validationResult.citations
+    );
 
     const nextSteps = NEXT_STEPS_BY_INTENT[classifiedIntent] || NEXT_STEPS_BY_INTENT.GENERAL;
     const processingTimeMs = Date.now() - startTime;
 
     return {
-      answer: genResult.answer,
+      answer: sanitizedAnswer,
       language: userLang,
       intent: classifiedIntent,
-      citations: verifiedSources,
+      goal: goalType,
+      citations: validationResult.citations,
+      reliableSourceAvailable: validationResult.reliableSourceAvailable,
       next_steps: nextSteps,
       legal_aid_suggested: true,
       session_id,
@@ -114,6 +129,8 @@ Please provide a compassionate, grounded explanation based strictly on the statu
       warning: genResult.warning,
       engine: genResult.provider,
       processing_time_ms: processingTimeMs,
+      normalized_query: normalized.normalized,
+      retrieval_count: retrievedProvisions.length,
     };
   }
 }

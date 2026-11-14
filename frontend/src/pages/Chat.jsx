@@ -14,7 +14,12 @@ import {
   Languages,
   AlertTriangle,
   RefreshCw,
-  Database
+  Database,
+  ChevronDown,
+  ChevronUp,
+  ShieldCheck,
+  FileText,
+  CheckCircle2
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useChat } from "@/hooks/useChat";
@@ -28,6 +33,7 @@ export default function Chat() {
   const [isListening, setIsListening] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
   const [isCheckingDb, setIsCheckingDb] = useState(false);
+  const [expandedCitationId, setExpandedCitationId] = useState(null);
   const messagesEndRef = useRef(null);
 
   const {
@@ -212,12 +218,118 @@ export default function Chat() {
       </div>
     )
   }{
-    /* Statutory Citations */
-  }{msg.citations && msg.citations.length > 0 && <div className="pt-2 border-t border-slate-100 space-y-1"><span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1"><BookOpen className="w-3 h-3 text-amber-600" /> Applicable Indian Law:
-                      </span><div className="flex flex-wrap gap-1.5">{msg.citations.map((c, idx) => <span
-    key={idx}
-    className="inline-flex items-center gap-1 text-[11px] bg-amber-50 text-amber-900 border border-amber-200 px-2 py-0.5 rounded-md font-medium"
-  ><span>{c.actName}</span>{c.sectionNumber && <span className="font-bold">§{c.sectionNumber}</span>}</span>)}</div></div>}{
+    /* Statutory Citations & Legal Cards */
+  }{msg.citations && msg.citations.length > 0 ? (
+    <div className="pt-3 border-t border-slate-100 space-y-2">
+      <div className="flex items-center justify-between">
+        <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+          <BookOpen className="w-3.5 h-3.5 text-amber-600" /> Applicable Indian Statutes & Sections:
+        </span>
+        <span className="text-[10px] text-slate-400">Click card to view official text</span>
+      </div>
+      <div className="space-y-2">
+        {msg.citations.map((c, idx) => {
+          const isExpanded = expandedCitationId === (c.id || idx);
+          return (
+            <div
+              key={idx}
+              className="bg-slate-50 hover:bg-slate-100/80 border border-slate-200 rounded-xl p-2.5 transition-colors"
+            >
+              <div
+                className="flex items-center justify-between cursor-pointer select-none"
+                onClick={() => setExpandedCitationId(isExpanded ? null : (c.id || idx))}
+              >
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="font-semibold text-xs text-slate-900">{c.actName}</span>
+                  {c.sectionNumber && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-200">
+                      §{c.sectionNumber}
+                    </span>
+                  )}
+                  {c.jurisdiction && (
+                    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[9px] font-semibold bg-sky-100 text-sky-800">
+                      {c.jurisdiction}
+                    </span>
+                  )}
+                  {c.verificationStatus && (
+                    <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-semibold bg-emerald-100 text-emerald-800">
+                      <ShieldCheck className="w-2.5 h-2.5" /> {c.verificationStatus}
+                    </span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="text-slate-400 hover:text-slate-600 p-1"
+                  title={isExpanded ? "Collapse" : "Expand official text"}
+                >
+                  {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                </button>
+              </div>
+
+              {/* Collapsible Verified Statutory Text */}
+              {isExpanded && (
+                <div className="mt-2.5 pt-2 border-t border-slate-200/60 space-y-2 text-xs">
+                  {c.title && (
+                    <p className="font-semibold text-slate-700 text-[11px]">
+                      Title: {c.title}
+                    </p>
+                  )}
+                  {(c.originalText || c.relevance) && (
+                    <div className="p-2.5 bg-amber-50/70 border border-amber-200/80 rounded-lg font-serif text-slate-800 text-[11px] leading-relaxed">
+                      <div className="flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider text-amber-800 pb-1 not-italic">
+                        <FileText className="w-3 h-3 text-amber-700" /> Verbatim Statutory Provision:
+                      </div>
+                      "{c.originalText || c.relevance}"
+                    </div>
+                  )}
+                  {c.simplifiedText && (
+                    <p className="text-[11px] text-slate-600">
+                      <strong className="text-slate-800">Plain Meaning:</strong> {c.simplifiedText}
+                    </p>
+                  )}
+                  {c.url && (
+                    <div className="pt-1">
+                      <a
+                        href={c.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-medium text-amber-700 hover:text-amber-800 hover:underline"
+                      >
+                        Official Gazette / India Code Repository <ExternalLink className="w-3 h-3" />
+                      </a>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  ) : msg.role === "assistant" && !msg.isError && (
+    <div className="pt-2 border-t border-slate-100">
+      <div className="p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-600 flex items-center justify-between">
+        <span>No specific Act provision matched. Free legal aid is available via NALSA Helpline:</span>
+        <a href="tel:15100" className="font-bold text-amber-600 hover:underline">15100</a>
+      </div>
+    </div>
+  )}{
+    /* Suggested Next Actions Checklist */
+  }{msg.nextSteps && msg.nextSteps.length > 0 && (
+    <div className="pt-2 border-t border-slate-100 space-y-1.5">
+      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1">
+        <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Suggested Action Roadmap:
+      </span>
+      <ul className="space-y-1">
+        {msg.nextSteps.map((step, sIdx) => (
+          <li key={sIdx} className="text-xs text-slate-700 flex items-start gap-1.5">
+            <span className="text-emerald-600 font-bold">•</span>
+            <span>{step}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}{
     /* Action Navigation Link if available */
   }{msg.actionUrl && <div className="pt-2"><a
     href={msg.actionUrl}

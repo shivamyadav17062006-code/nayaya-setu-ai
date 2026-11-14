@@ -12,8 +12,15 @@ function toCitations(sources = []) {
     id: newId(),
     actName: source.act ?? "Indian Statute",
     sectionNumber: source.section,
+    title: source.title,
     year: source.year,
-    url: source.sourceUrl,
+    url: source.sourceUrl || source.url,
+    originalText: source.originalText,
+    simplifiedText: source.simplifiedText,
+    jurisdiction: source.jurisdiction || "CENTRAL",
+    verificationStatus: source.verificationStatus || "VERIFIED",
+    relevance: source.relevance,
+    similarity: source.similarity,
   }));
 }
 
@@ -33,6 +40,9 @@ export const chatApi = {
       timestamp: new Date(),
       language: payload.language ?? request.language,
       citations: toCitations(payload.sources),
+      nextSteps: payload.nextSteps || [],
+      degraded: payload.degraded ?? false,
+      actionUrl: payload.actionUrl,
     };
 
     return {

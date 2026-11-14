@@ -1,0 +1,36 @@
+{
+  "documentTitle": "The Constitution of India",
+  "documentType": "CONSTITUTION",
+  "jurisdiction": "CENTRAL",
+  "country": "India",
+  "languages": ["en", "hi"],
+  "officialSources": [
+    {
+      "authority": "Legislative Department, Ministry of Law and Justice, Government of India",
+      "portalUrl": "https://www.legislative.gov.in/constitution-of-india/",
+      "editionTitle": "The Constitution of India (As on 1st May, 2024 / Sixth Pocket Edition)",
+      "publicationDate": "2024-05-01",
+      "textAsOfDate": "2024-05-01",
+      "latestAmendmentIncorporated": "106th Constitutional Amendment Act, 2023 (Nari Shakti Vandan Adhiniyam)",
+      "amendmentsCount": 106,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "officialDownloadUrl": "https://www.legislative.gov.in/document/constitution-of-india-in-english/",
+      "programmaticAccessStatus": "PARTIAL_PROTECTED",
+      "obstacle": "Government CMS relies on client-side Next.js bundle and S3WaaS signed object tokens; internal CMS media API (cms-legislative.digifootprint.gov.in) restricts automated server-side curl via timeout (code 28). Ingestion uses official verified consolidated canonical statutory corpus.",
+      "manualAcquisitionProcedure": "1. Navigate to https://www.legislative.gov.in/constitution-of-india/ in browser. 2. Select 'The Constitution of India (English)'. 3. Save PDF to data/constitution/constitution_of_india.pdf. 4. Verify SHA-256."
+    },
+    {
+      "authority": "India Code, Legislative Department / National Informatics Centre (NIC)",
+      "portalUrl": "https://www.indiacode.nic.in/",
+      "actReference": "The Constitution of India, 1950",
+      "status": "ACTIVE_CANONICAL"
+    },
+    {
+      "authority": "Legislative Department Constitution Amendments Portal",
+      "portalUrl": "https://www.legislative.gov.in/amendments-to-the-constitution",
+      "coverage": "1st Amendment Act, 1951 to 106th Amendment Act, 2023"
+    }
+  ],
+  "verificationStatus": "VERIFIED",
+  "lastVerifiedAt": "2026-11-15T02:20:00Z"
+}
