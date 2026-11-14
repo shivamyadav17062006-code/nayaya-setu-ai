@@ -1,24 +1,13 @@
 import { Router } from 'express';
-import { ragService } from '../services/ragService.js';
+import { validate } from '../middleware/validate.js';
+import { querySchema } from '../validators/index.js';
+import { handleGeneration } from '../controllers/generationController.js';
 
 export const queryRouter = Router();
 
-queryRouter.post('/query', async (req, res, next) => {
-  try {
-    const { message, language, intent, session_id } = req.body || {};
-    if (!message || typeof message !== 'string') {
-      return res.status(400).json({ detail: 'Message string is required.' });
-    }
+// Compatible across legacy and modern endpoints
+queryRouter.post('/query', validate(querySchema), handleGeneration);
+queryRouter.post('/chat', validate(querySchema), handleGeneration);
+queryRouter.post('/generate', validate(querySchema), handleGeneration);
 
-    const response = await ragService.query({
-      message,
-      language,
-      intent,
-      session_id,
-    });
-
-    res.json(response);
-  } catch (err) {
-    next(err);
-  }
-});
+export default queryRouter;

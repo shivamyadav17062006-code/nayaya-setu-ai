@@ -199,6 +199,19 @@ export default function Chat() {
   >{copiedId === msg.id ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}</button>}</div>{
     /* Body Content */
   }<div className="whitespace-pre-line">{msg.content}</div>{
+    /* Retry Action if error occurred */
+    msg.isError && msg.retryText && (
+      <div className="pt-1">
+        <button
+          onClick={() => sendMessage(msg.retryText)}
+          disabled={isLoading}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50"
+        >
+          <RefreshCw className="w-3.5 h-3.5" /> Retry Question
+        </button>
+      </div>
+    )
+  }{
     /* Statutory Citations */
   }{msg.citations && msg.citations.length > 0 && <div className="pt-2 border-t border-slate-100 space-y-1"><span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-1"><BookOpen className="w-3 h-3 text-amber-600" /> Applicable Indian Law:
                       </span><div className="flex flex-wrap gap-1.5">{msg.citations.map((c, idx) => <span

@@ -1,58 +1,64 @@
 import express from 'express';
 import cors from 'cors';
-import { config } from './config.js';
-import { healthRouter } from './routes/health.js';
-import { queryRouter } from './routes/query.js';
-import { embedRouter } from './routes/embed.js';
-import { searchRouter } from './routes/search.js';
+import { env } from './config/env.js';
+import { router } from './routes/index.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
-const app = express();
+import { fileURLToPath } from 'url';
 
-app.use(cors());
-app.use(express.json({ limit: '10mb' }));
+export function createApp() {
+  const app = express();
 
-app.use(healthRouter);
-app.use(queryRouter);
-app.use(embedRouter);
-app.use(searchRouter);
+  app.use(cors());
+  app.use(express.json({ limit: '10mb' }));
+  app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// 404 handler
-app.use((req, res) => {
-  res.status(404).json({ detail: `Route not found: ${req.method} ${req.path}` });
-});
+  // Mount unified routes
+  app.use(router);
 
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('[AI Engine Error]', err);
-  res.status(500).json({
-    detail: err.message || 'Internal AI engine error',
+  // 404 handler
+  app.use((req, res) => {
+    res.status(404).json({ detail: `Route not found: ${req.method} ${req.path}` });
   });
-});
 
-const server = app.listen(config.port, config.host, () => {
-  console.log(`🚀 NyayaSaathi Node.js AI Engine running on http://${config.host}:${config.port}`);
-  console.log(`   LLM Provider: ${config.llmProvider}`);
-  console.log(`   Supabase: ${config.supabaseUrl}`);
-});
+  // Centralized error handler
+  app.use(errorHandler);
 
-const shutdown = (signal) => {
-  console.log(`\n📛 [AI Engine] Received ${signal}. Shutting down gracefully...`);
-  server.close(() => {
-    console.log('✅ [AI Engine] Server closed. Goodbye!');
-    process.exit(0);
+  return app;
+}
+
+const app = createApp();
+
+// Start standalone server only when run directly from command line (not imported in test suites)
+const isDirectExecution = process.argv[1] && process.argv[1] === fileURLToPath(import.meta.url);
+
+if (isDirectExecution && process.env.NODE_ENV !== 'test') {
+  const server = app.listen(env.port, env.host, () => {
+    console.log(`🚀 NyayaSaathi Node.js AI Engine running on http://${env.host}:${env.port}`);
+    console.log(`   LLM Provider: ${env.llmProvider} (Configured: ${env.isGeminiConfigured ? 'Gemini Live' : 'Statutory Mock'})`);
+    console.log(`   Model: ${env.geminiModel}`);
+    console.log(`   Supabase: ${env.supabaseUrl}`);
   });
-};
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+  const shutdown = (signal) => {
+    console.log(`\n📛 [AI Engine] Received ${signal}. Shutting down gracefully...`);
+    server.close(() => {
+      console.log('✅ [AI Engine] Server closed cleanly.');
+      process.exit(0);
+    });
+  };
 
-process.on('unhandledRejection', (reason) => {
-  console.error('⚠️ [AI Engine] Unhandled Promise Rejection:', reason);
-});
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
 
-process.on('uncaughtException', (err) => {
-  console.error('💥 [AI Engine] Uncaught Exception:', err);
-  process.exit(1);
-});
+  process.on('unhandledRejection', (reason) => {
+    console.error('⚠️ [AI Engine] Unhandled Promise Rejection:', reason);
+  });
+
+  process.on('uncaughtException', (err) => {
+    console.error('💥 [AI Engine] Uncaught Exception:', err);
+    process.exit(1);
+  });
+}
 
 export default app;

@@ -165,14 +165,17 @@ export function useChat({ language = "en" } = {}) {
     } catch (err) {
       setIsTyping(false);
       if (err instanceof Error && err.name !== "AbortError") {
+        const errorDetail = err.response?.data?.error || err.response?.data?.detail || "AI reasoning engine is temporarily unavailable. Please verify your connection or click retry.";
         const errorMessage = {
           id: generateId(),
           role: "assistant",
-          content: "I apologize, I encountered an error processing your request. Please try again.",
+          content: errorDetail,
           timestamp: new Date(),
+          isError: true,
+          retryText: content.trim(),
         };
         setMessages((prev) => [...prev, errorMessage]);
-        toast.error("Failed to send message. Please try again.");
+        toast.error("AI reasoning failure. You can retry your query.");
       }
     } finally {
       setIsLoading(false);

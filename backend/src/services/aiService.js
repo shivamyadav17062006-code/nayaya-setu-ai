@@ -175,7 +175,9 @@ export async function queryAIEngine(params) {
         })),
         nextSteps: res.data.next_steps,
         legalAidSuggested: res.data.legal_aid_suggested,
-        engine: 'ai-engine-rag',
+        engine: res.data.engine || 'ai-engine-rag',
+        degraded: res.data.degraded ?? false,
+        warning: res.data.warning ?? null,
       };
     }
   } catch (error) {

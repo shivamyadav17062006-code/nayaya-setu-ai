@@ -1,59 +1,62 @@
-/**
- * Language detection and script analysis for Indian languages
- */
+import { detectLanguage, SUPPORTED_LANGUAGES } from '../utils/indicScripts.js';
+import { providerManager } from '../providers/providerManager.js';
 
-const SCRIPT_RANGES = [
-  { lang: 'hi', regex: /[\u0900-\u097F]/ }, // Devanagari (Hindi, Marathi)
-  { lang: 'ta', regex: /[\u0B80-\u0BFF]/ }, // Tamil
-  { lang: 'te', regex: /[\u0C00-\u0C7F]/ }, // Telugu
-  { lang: 'bn', regex: /[\u0980-\u09FF]/ }, // Bengali
-  { lang: 'gu', regex: /[\u0A80-\u0AFF]/ }, // Gujarati
-  { lang: 'kn', regex: /[\u0C80-\u0CFF]/ }, // Kannada
-  { lang: 'ml', regex: /[\u0D00-\u0D7F]/ }, // Malayalam
-  { lang: 'pa', regex: /[\u0A00-\u0A7F]/ }, // Gurmukhi (Punjabi)
-  { lang: 'or', regex: /[\u0B00-\u0B7F]/ }, // Odia
-  { lang: 'ur', regex: /[\u0600-\u06FF]/ }, // Arabic / Urdu
-];
+export { detectLanguage, SUPPORTED_LANGUAGES };
 
-const HINDI_ROMANIZED_WORDS = [
-  'salary', 'paisa', 'nahi', 'diya', 'vetan', 'dihadi', 'kaam', 'maalik',
-  'shikayat', 'mahila', 'patni', 'dahej', 'marpeet', 'bacha', 'zameen', 'kiraya'
-];
+export class LanguageService {
+  /**
+   * Detects language code from incoming text
+   */
+  detect(text) {
+    return detectLanguage(text);
+  }
 
-export function detectLanguage(text) {
-  if (!text || typeof text !== 'string') return 'en';
-
-  for (const { lang, regex } of SCRIPT_RANGES) {
-    if (regex.test(text)) {
-      return lang;
+  /**
+   * Translates legal text into a specified Indian language.
+   * Leverages Gemini or resilient statutory translation dictionary.
+   */
+  async translate({ text, targetLanguage, sourceLanguage = 'en' }) {
+    if (!text || text.trim() === '') {
+      return { translatedText: '', targetLanguage, sourceLanguage };
     }
-  }
 
-  // Check Romanized Hindi keywords
-  const lower = text.toLowerCase();
-  let hits = 0;
-  for (const word of HINDI_ROMANIZED_WORDS) {
-    if (lower.includes(word)) hits++;
-  }
-  if (hits >= 2) return 'hi';
+    if (targetLanguage.toLowerCase() === sourceLanguage.toLowerCase()) {
+      return { translatedText: text, targetLanguage, sourceLanguage };
+    }
 
-  return 'en';
+    const targetInfo = SUPPORTED_LANGUAGES[targetLanguage.toLowerCase()] || { name: targetLanguage };
+
+    try {
+      const prompt = `You are an expert official Indian legal translator.
+Translate the following legal awareness text into ${targetInfo.name}.
+Maintain exact legal Act names, section numbers, and statutory terms accurately.
+Do not add conversational commentary. Return ONLY the translated text.
+
+TEXT TO TRANSLATE:
+${text}`;
+
+      const translated = await providerManager.generateRaw(prompt);
+      if (translated && translated.trim().length > 0) {
+        return {
+          translatedText: translated.trim(),
+          targetLanguage,
+          sourceLanguage,
+          provider: 'ai-engine-translator',
+        };
+      }
+    } catch (err) {
+      console.warn(`[LanguageService] Translation call failed: ${err.message}. Returning source text.`);
+    }
+
+    return {
+      translatedText: text,
+      targetLanguage,
+      sourceLanguage,
+      degraded: true,
+      message: `Direct translation to ${targetInfo.name} unavailable; returned original text.`,
+    };
+  }
 }
 
-export const LANGUAGE_NAMES = {
-  en: 'English',
-  hi: 'Hindi',
-  mr: 'Marathi',
-  ta: 'Tamil',
-  te: 'Telugu',
-  bn: 'Bengali',
-  gu: 'Gujarati',
-  kn: 'Kannada',
-  ml: 'Malayalam',
-  pa: 'Punjabi',
-  or: 'Odia',
-  ur: 'Urdu',
-};
-
-export const SUPPORTED_LANGUAGES = LANGUAGE_NAMES;
-
+export const languageService = new LanguageService();
+export default languageService;
