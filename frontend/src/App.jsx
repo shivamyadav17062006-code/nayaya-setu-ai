@@ -13,11 +13,12 @@ import ConstitutionExplorer from "@/pages/ConstitutionExplorer";
 import LegislationCatalogue from "@/pages/LegislationCatalogue";
 import StateExplorer from "@/pages/StateExplorer";
 import CaseLawExplorer from "@/pages/CaseLawExplorer";
+import LegalKMS from "@/pages/admin/LegalKMS";
 import NotFound from "@/pages/NotFound";
 function AppRoutes() {
   const location = useLocation();
   const isChatPage = location.pathname === "/chat";
-  return <div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><AnimatePresence mode="wait"><Routes location={location} key={location.pathname}><Route path="/" element={<Home />} /><Route path="/chat" element={<Chat />} /><Route path="/rights" element={<Rights />} /><Route path="/rights/:categoryId" element={<RightsCategory />} /><Route path="/navigator" element={<Navigator />} /><Route path="/aid-finder" element={<AidFinder />} /><Route path="/eligibility" element={<Eligibility />} /><Route path="/constitution" element={<ConstitutionExplorer />} /><Route path="/legislation" element={<LegislationCatalogue />} /><Route path="/states" element={<StateExplorer />} /><Route path="/case-law" element={<CaseLawExplorer />} /><Route path="*" element={<NotFound />} /></Routes></AnimatePresence></main>{!isChatPage && <Footer />}</div>;
+  return <div className="flex flex-col min-h-screen"><Navbar /><main className="flex-1"><AnimatePresence mode="wait"><Routes location={location} key={location.pathname}><Route path="/" element={<Home />} /><Route path="/chat" element={<Chat />} /><Route path="/rights" element={<Rights />} /><Route path="/rights/:categoryId" element={<RightsCategory />} /><Route path="/navigator" element={<Navigator />} /><Route path="/aid-finder" element={<AidFinder />} /><Route path="/eligibility" element={<Eligibility />} /><Route path="/constitution" element={<ConstitutionExplorer />} /><Route path="/legislation" element={<LegislationCatalogue />} /><Route path="/states" element={<StateExplorer />} /><Route path="/case-law" element={<CaseLawExplorer />} /><Route path="/admin/kms" element={<LegalKMS />} /><Route path="*" element={<NotFound />} /></Routes></AnimatePresence></main>{!isChatPage && <Footer />}</div>;
 }
 export default function App() {
   return <BrowserRouter><AppRoutes /></BrowserRouter>;

@@ -9,6 +9,7 @@ import constitutionRouter from './constitution.js';
 import legislationRouter from './legislation.js';
 import stateLegislationRouter from './stateLegislation.js';
 import caseLawRouter from './caseLaw.js';
+import kmsRouter from './kms.js';
 
 export const router = Router();
 
@@ -23,6 +24,7 @@ router.use('/constitution', constitutionRouter);
 router.use('/legislation', legislationRouter);
 router.use('/states', stateLegislationRouter);
 router.use('/case-law', caseLawRouter);
+router.use('/kms', kmsRouter);
 
 // API discovery & manifest endpoint
 router.get('/', (_req, res) => {
@@ -82,6 +84,20 @@ router.get('/', (_req, res) => {
         byId: 'GET /api/case-law/:id',
         byStatute: 'GET /api/case-law/statute/:provision',
         search: 'POST /api/case-law/search',
+      },
+      kms: {
+        dashboard: 'GET /api/kms/dashboard',
+        acts: 'GET /api/kms/acts',
+        createAct: 'POST /api/kms/acts',
+        updateAct: 'PUT /api/kms/acts/:id',
+        sections: 'GET /api/kms/acts/:id/sections',
+        createSection: 'POST /api/kms/acts/:id/sections',
+        updateSection: 'PUT /api/kms/sections/:id',
+        importBatch: 'POST /api/kms/import',
+        reviewQueue: 'GET /api/kms/review-queue',
+        reviewAction: 'POST /api/kms/review/:entityType/:id',
+        revisions: 'GET /api/kms/revisions/:entityType/:id',
+        auditLogs: 'GET /api/kms/audit-logs',
       },
     },
   });

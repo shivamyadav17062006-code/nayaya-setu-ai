@@ -37,6 +37,9 @@ model LegalAct {
   effectiveTo            DateTime?      @map("effective_to") @db.Date
   verificationStatus     String?        @default("PENDING") @map("verification_status")
   lastVerifiedAt         DateTime?      @map("last_verified_at") @db.Timestamptz(6)
+  reviewerId             String?        @map("reviewer_id")
+  reviewNotes            String?        @map("review_notes")
+  lastReviewedAt         DateTime?      @map("last_reviewed_at") @db.Timestamptz(6)
   createdAt              DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt              DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
   sections               LegalSection[]
@@ -53,6 +56,9 @@ model LegalSection {
   title          String?              @map("section_title")
   originalText   String               @map("original_text") @db.Text
   simplifiedText String?              @map("simplified_text") @db.Text
+  verificationStatus String?          @default("PUBLISHED") @map("verification_status")
+  reviewerId     String?              @map("reviewer_id")
+  reviewNotes    String?              @map("review_notes")
   effectiveFrom  DateTime?            @map("effective_from") @db.Date
   effectiveTo    DateTime?            @map("effective_to") @db.Date
   createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -259,4 +265,53 @@ model Message {
   updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("messages")
+}
+
+// ----------------------------------------------------------------------------
+// 5. Legal Knowledge Management System (KMS) Workflows & Audits
+// ----------------------------------------------------------------------------
+
+model LegalAuditLog {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entityType    String   @map("entity_type")
+  entityId      String   @map("entity_id") @db.Uuid
+  action        String
+  actorId       String?  @map("actor_id")
+  actorEmail    String?  @map("actor_email")
+  actorRole     String?  @default("ADMIN") @map("actor_role")
+  previousState Json?    @map("previous_state")
+  newState      Json?    @map("new_state")
+  reviewNotes   String?  @map("review_notes")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("legal_audit_logs")
+}
+
+model LegalRevision {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  entityType      String   @map("entity_type")
+  entityId        String   @map("entity_id") @db.Uuid
+  revisionNumber  Int      @default(1) @map("revision_number")
+  title           String?
+  contentSnapshot Json     @map("content_snapshot")
+  createdBy       String?  @map("created_by")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("legal_revisions")
+}
+
+model LegalImportBatch {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sourceName      String   @map("source_name")
+  sourceUrl       String?  @map("source_url")
+  importType      String   @default("JSON_IMPORT") @map("import_type")
+  status          String   @default("PENDING")
+  totalRecords    Int?     @default(0) @map("total_records")
+  importedRecords Int?     @default(0) @map("imported_records")
+  rejectedRecords Int?     @default(0) @map("rejected_records")
+  errorLog        Json?    @default("[]") @map("error_log")
+  importedBy      String?  @map("imported_by")
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+
+  @@map("legal_import_batches")
 }
