@@ -322,11 +322,6 @@ class LegalService {
 
     let candidateRecords = [];
 
-    // Prepend exact reference if matched
-    if (exactConstitutionalMatch) {
-      candidateRecords.push(exactConstitutionalMatch);
-    }
-
     // 2. Query Supabase pgvector RPC if available
     if (this.supabase && queryEmbedding && Array.isArray(queryEmbedding) && queryEmbedding.length === 384) {
       try {
@@ -337,7 +332,7 @@ class LegalService {
         });
 
         if (!error && Array.isArray(data) && data.length > 0) {
-          candidateRecords = data.map((item) => ({
+          const dbRecords = data.map((item) => ({
             act_id: item.act_id || null,
             act: item.act_title,
             year: item.act_year || null,
@@ -352,10 +347,16 @@ class LegalService {
             verification_status: 'VERIFIED',
             vectorSimilarity: item.similarity ?? 0.5,
           }));
+
+          candidateRecords = exactConstitutionalMatch ? [exactConstitutionalMatch, ...dbRecords] : dbRecords;
         }
       } catch (err) {
         console.warn('[LegalService] pgvector retrieval warning:', err.message);
       }
+    }
+
+    if (candidateRecords.length === 0 && exactConstitutionalMatch) {
+      candidateRecords = [exactConstitutionalMatch];
     }
 
     // 3. Fallback or merge with static knowledge base

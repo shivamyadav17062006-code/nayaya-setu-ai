@@ -8,6 +8,7 @@ import {
   HeartHandshake,
   CheckCircle2,
   Landmark,
+  FileText,
   Menu,
   X,
   Globe,
@@ -51,6 +52,7 @@ export default function Navbar() {
   const navLinks = [
     { path: "/chat", label: "AI Legal Assistant", icon: MessageSquare },
     { path: "/constitution", label: "Constitution", icon: Landmark },
+    { path: "/legislation", label: "Central Acts & Rules", icon: FileText },
     { path: "/rights", label: "Know Your Rights", icon: BookOpen },
     { path: "/navigator", label: "Action Navigator", icon: Compass },
     { path: "/aid-finder", label: "Legal Aid Finder", icon: HeartHandshake },

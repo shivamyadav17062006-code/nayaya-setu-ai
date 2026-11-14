@@ -17,23 +17,31 @@ datasource db {
 // ----------------------------------------------------------------------------
 
 model LegalAct {
-  id                 String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  title              String
-  actNumber          String?        @map("act_number")
-  year               Int
-  jurisdiction       String         // "CENTRAL" | "STATE"
-  state              String?
-  category           String?
-  description        String?
-  sourceUrl          String         @map("source_url")
-  status             String?        @default("ACTIVE")
-  effectiveFrom      DateTime?      @map("effective_from") @db.Date
-  effectiveTo        DateTime?      @map("effective_to") @db.Date
-  verificationStatus String?        @default("PENDING") @map("verification_status")
-  lastVerifiedAt     DateTime?      @map("last_verified_at") @db.Timestamptz(6)
-  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
-  sections           LegalSection[]
+  id                     String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title                  String
+  actNumber              String?        @map("act_number")
+  year                   Int
+  jurisdiction           String         // "CENTRAL" | "STATE"
+  state                  String?
+  category               String?
+  description            String?
+  sourceUrl              String         @map("source_url")
+  status                 String?        @default("ACTIVE")
+  documentType           String?        @default("ACT") @map("document_type") // "ACT" | "RULES" | "REGULATIONS" | "NOTIFICATION" | "ORDER"
+  parentActId            String?        @map("parent_act_id") @db.Uuid
+  ministry               String?
+  checksum               String?
+  enactmentDate          DateTime?      @map("enactment_date") @db.Date
+  enablingProvision      String?        @map("enabling_provision")
+  effectiveFrom          DateTime?      @map("effective_from") @db.Date
+  effectiveTo            DateTime?      @map("effective_to") @db.Date
+  verificationStatus     String?        @default("PENDING") @map("verification_status")
+  lastVerifiedAt         DateTime?      @map("last_verified_at") @db.Timestamptz(6)
+  createdAt              DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sections               LegalSection[]
+  parentAct              LegalAct?      @relation("ActSubordinateLegislation", fields: [parentActId], references: [id], onDelete: SetNull)
+  subordinateLegislation LegalAct[]     @relation("ActSubordinateLegislation")
 
   @@map("legal_acts")
 }
