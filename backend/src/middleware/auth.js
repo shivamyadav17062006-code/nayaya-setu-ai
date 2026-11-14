@@ -20,7 +20,11 @@ export function authenticate(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, secret);
-    req.user = decoded;
+    req.user = {
+      ...decoded,
+      id: decoded.userId || decoded.id,
+      userId: decoded.userId || decoded.id,
+    };
     next();
   } catch (err) {
     if (err instanceof jwt.TokenExpiredError) {
@@ -53,7 +57,12 @@ export function optionalAuth(req, _res, next) {
   if (authHeader && authHeader.startsWith('Bearer ') && secret) {
     try {
       const token = authHeader.slice(7);
-      req.user = jwt.verify(token, secret);
+      const decoded = jwt.verify(token, secret);
+      req.user = {
+        ...decoded,
+        id: decoded.userId || decoded.id,
+        userId: decoded.userId || decoded.id,
+      };
     } catch {
       // Silently ignore invalid/expired tokens in optional auth
     }

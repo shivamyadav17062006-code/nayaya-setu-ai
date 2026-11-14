@@ -137,14 +137,14 @@ class LegalService {
         if (!error && Array.isArray(data) && data.length > 0) {
           return data.map((item) => ({
             act: item.act_title,
-            year: null,
+            year: item.act_year || null,
             section: item.section_number,
             title: item.section_title || item.section_number,
             category: intent,
-            text: item.chunk_text,
-            simplified: item.simplified_text || item.chunk_text,
+            text: item.content || item.chunk_text,
+            simplified: item.simplified_text || item.content || item.chunk_text,
             remedy: 'Contact local DLSA or call NALSA 15100.',
-            source_url: item.act_source_url,
+            source_url: item.act_source_url || item.source_url,
             similarity: item.similarity,
           }));
         }

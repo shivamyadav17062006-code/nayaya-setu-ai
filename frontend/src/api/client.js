@@ -14,14 +14,30 @@ apiClient.interceptors.request.use((config) => {
   if (sessionId) {
     config.headers["X-Session-ID"] = sessionId;
   }
+  const token = localStorage.getItem("nyayasaathi_token");
+  if (token) {
+    config.headers["Authorization"] = `Bearer ${token}`;
+  }
   return config;
 });
 apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response) {
+      const status = error.response.status;
       const data = error.response.data;
-      const message = data?.message || "An error occurred. Please try again.";
+
+      if (status === 401) {
+        // Clear expired or invalid token
+        localStorage.removeItem("nyayasaathi_token");
+        return Promise.reject(new Error(data?.error || data?.message || "Your session has expired. Please log in again."));
+      }
+
+      if (status === 403) {
+        return Promise.reject(new Error("Access denied: You do not have permission to access this resource."));
+      }
+
+      const message = data?.error || data?.message || "An error occurred while processing your request. Please try again.";
       return Promise.reject(new Error(message));
     } else if (error.request) {
       return Promise.reject(new Error("Network error. Please check your connection."));

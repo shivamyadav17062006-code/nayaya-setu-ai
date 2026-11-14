@@ -32,5 +32,5 @@ export const config = {
   embeddingModel: process.env.EMBEDDING_MODEL || 'sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2',
   embeddingDim: parseInt(process.env.EMBEDDING_DIM || '384', 10),
   ragTopK: parseInt(process.env.RAG_TOP_K || '5', 10),
-  ragSimilarityThreshold: parseFloat(process.env.RAG_SIMILARITY_THRESHOLD || '0.3'),
+  ragSimilarityThreshold: parseFloat(process.env.RAG_SIMILARITY_THRESHOLD || '0.0'),
 };
