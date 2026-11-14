@@ -3,6 +3,7 @@ import { detectLanguage, SUPPORTED_LANGUAGES } from './languageService.js';
 import { normalizeQuery } from './queryNormalizer.js';
 import { embeddingService } from './embeddingService.js';
 import { legalService } from './legalService.js';
+import { caseLawService } from './caseLawService.js';
 import { citationValidator } from './citationValidator.js';
 import { providerManager } from '../providers/providerManager.js';
 import { buildSystemPrompt, formatUntrustedContext, NEXT_STEPS_BY_INTENT } from '../utils/prompts.js';
@@ -71,6 +72,14 @@ export class RAGService {
       queryEmbedding
     );
 
+    // Retrieve Relevant Case Law Precedents (Distinct Channel)
+    let caseLawPrecedents = [];
+    try {
+      caseLawPrecedents = await caseLawService.retrieveCaseLaw(searchQuery, { limit: 2 });
+    } catch (clErr) {
+      console.warn('[RAGService] Case law retrieval warning:', clErr.message);
+    }
+
     // ------------------------------------------------------------------------
     // Step 8: Verified Legal Context (Structured & Untrusted Isolation)
     // ------------------------------------------------------------------------
@@ -121,6 +130,7 @@ Provide a compassionate, grounded explanation adhering strictly to the <retrieve
       intent: classifiedIntent,
       goal: goalType,
       citations: validationResult.citations,
+      precedents: caseLawPrecedents,
       reliableSourceAvailable: validationResult.reliableSourceAvailable,
       next_steps: nextSteps,
       legal_aid_suggested: true,

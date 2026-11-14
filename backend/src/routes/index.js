@@ -8,6 +8,7 @@ import authRouter from './auth.js';
 import constitutionRouter from './constitution.js';
 import legislationRouter from './legislation.js';
 import stateLegislationRouter from './stateLegislation.js';
+import caseLawRouter from './caseLaw.js';
 
 export const router = Router();
 
@@ -21,6 +22,7 @@ router.use('/auth', authRouter);
 router.use('/constitution', constitutionRouter);
 router.use('/legislation', legislationRouter);
 router.use('/states', stateLegislationRouter);
+router.use('/case-law', caseLawRouter);
 
 // API discovery & manifest endpoint
 router.get('/', (_req, res) => {
@@ -74,6 +76,12 @@ router.get('/', (_req, res) => {
         byCode: 'GET /api/states/:stateCode',
         acts: 'GET /api/states/:stateCode/acts?documentType=',
         coverageTracker: 'GET /api/states/coverage/tracker',
+      },
+      caseLaw: {
+        list: 'GET /api/case-law?court=&authority=&q=&limit=&page=',
+        byId: 'GET /api/case-law/:id',
+        byStatute: 'GET /api/case-law/statute/:provision',
+        search: 'POST /api/case-law/search',
       },
     },
   });

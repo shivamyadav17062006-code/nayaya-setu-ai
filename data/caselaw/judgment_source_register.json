@@ -1,0 +1,289 @@
+{
+  "version": "1.0.0",
+  "generatedAt": "2026-11-14T22:06:58.822Z",
+  "totalSources": 8,
+  "courtsCovered": [
+    "Supreme Court of India",
+    "High Court of Judicature at Bombay",
+    "High Court of Delhi"
+  ],
+  "breakdownByCourtLevel": {
+    "supremeCourt": 6,
+    "highCourts": 2
+  },
+  "breakdownByAuthority": {
+    "bindingNationwide": 6,
+    "bindingWithinState": 2
+  },
+  "sources": [
+    {
+      "id": "e1000000-0000-0000-0000-000000000001",
+      "courtName": "Supreme Court of India",
+      "courtLevel": "SUPREME_COURT",
+      "jurisdiction": "ALL_INDIA",
+      "precedentAuthority": "BINDING_NATIONWIDE",
+      "caseTitle": "Vishaka and Others v. State of Rajasthan and Others",
+      "caseNumber": "Writ Petition (Crl.) Nos. 666-70 of 1992",
+      "citation": "(1997) 6 SCC 241; AIR 1997 SC 3011",
+      "neutralCitation": "1997 INSC 603",
+      "decisionDate": "1997-08-13",
+      "bench": "J.S. Verma, C.J.I., Sujata V. Manohar, B.N. Kirpal, JJ.",
+      "coramSize": 3,
+      "officialJudgmentUrl": "https://main.sci.gov.in/judgment/judis/13847.pdf",
+      "pdfSourceUrl": "https://main.sci.gov.in/judgment/judis/13847.pdf",
+      "documentChecksum": "a89f92d47f9e8a71c50b691d3e85f4007f3c4db81d5b2447f5262de6ec6f1832",
+      "checksumAlgorithm": "SHA-256",
+      "publicationDetails": {
+        "officialLawReports": [
+          "(1997) 6 SCC 241",
+          "AIR 1997 SC 3011"
+        ],
+        "sourceOrganization": "Supreme Court of India",
+        "traceabilityStatus": "OFFICIAL_GOVERNMENT_REPOSITORY"
+      },
+      "statutoryProvisionsInterpreted": [
+        "Constitution of India (Article 14)",
+        "Constitution of India (Article 19(1)(g))",
+        "Constitution of India (Article 21)",
+        "Sexual Harassment of Women at Workplace (Prevention, Prohibition and Redressal) Act, 2013 (Section 4)"
+      ],
+      "ratioSummary": "Gender equality includes protection from sexual harassment and the right to work with dignity, which is a universally recognized basic human right. In the absence of domestic legis...",
+      "isSummaryMachineGenerated": true,
+      "verificationStatus": "PUBLISHED"
+    },
+    {
+      "id": "e1000000-0000-0000-0000-000000000002",
+      "courtName": "Supreme Court of India",
+      "courtLevel": "SUPREME_COURT",
+      "jurisdiction": "ALL_INDIA",
+      "precedentAuthority": "BINDING_NATIONWIDE",
+      "caseTitle": "Satish Chander Ahuja v. Sneha Ahuja",
+      "caseNumber": "Civil Appeal No. 2483 of 2020",
+      "citation": "(2020) 10 SCC 788; AIR 2020 SC 5318",
+      "neutralCitation": "2020 INSC 616",
+      "decisionDate": "2020-10-15",
+      "bench": "Ashok Bhushan, R. Subhash Reddy, M.R. Shah, JJ.",
+      "coramSize": 3,
+      "officialJudgmentUrl": "https://main.sci.gov.in/supremecourt/2019/46039/46039_2019_34_1501_24424_Judgement_15-Oct-2020.pdf",
+      "pdfSourceUrl": "https://main.sci.gov.in/supremecourt/2019/46039/46039_2019_34_1501_24424_Judgement_15-Oct-2020.pdf",
+      "documentChecksum": "67c13ea4b878342721f58b091f3a2c262e3d368e7b9921bc91702f2b43b67702",
+      "checksumAlgorithm": "SHA-256",
+      "publicationDetails": {
+        "officialLawReports": [
+          "(2020) 10 SCC 788",
+          "AIR 2020 SC 5318"
+        ],
+        "sourceOrganization": "Supreme Court of India",
+        "traceabilityStatus": "OFFICIAL_GOVERNMENT_REPOSITORY"
+      },
+      "statutoryProvisionsInterpreted": [
+        "Protection of Women from Domestic Violence Act, 2005 (Section 2(s))",
+        "Protection of Women from Domestic Violence Act, 2005 (Section 17)",
+        "Protection of Women from Domestic Violence Act, 2005 (Section 19)"
+      ],
+      "ratioSummary": "Section 2(s) of the PWDVA 2005 defines shared household to mean a household where the person aggrieved lives or at any stage has lived in a domestic relationship. The shared househ...",
+      "isSummaryMachineGenerated": true,
+      "verificationStatus": "PUBLISHED"
+    },
+    {
+      "id": "e1000000-0000-0000-0000-000000000003",
+      "courtName": "Supreme Court of India",
+      "courtLevel": "SUPREME_COURT",
+      "jurisdiction": "ALL_INDIA",
+      "precedentAuthority": "BINDING_NATIONWIDE",
+      "caseTitle": "Hussainara Khatoon and Others v. Home Secretary, State of Bihar",
+      "caseNumber": "Writ Petition No. 57 of 1979",
+      "citation": "(1980) 1 SCC 81; AIR 1979 SC 1369",
+      "neutralCitation": "1979 INSC 35",
+      "decisionDate": "1979-02-12",
+      "bench": "P.N. Bhagwati, V.D. Tulzapurkar, JJ.",
+      "coramSize": 2,
+      "officialJudgmentUrl": "https://main.sci.gov.in/judgment/judis/5277.pdf",
+      "pdfSourceUrl": "https://main.sci.gov.in/judgment/judis/5277.pdf",
+      "documentChecksum": "bc83344d18ec99ef38758804533da8018330ca09ee13f28d844573887dcb46a9",
+      "checksumAlgorithm": "SHA-256",
+      "publicationDetails": {
+        "officialLawReports": [
+          "(1980) 1 SCC 81",
+          "AIR 1979 SC 1369"
+        ],
+        "sourceOrganization": "Supreme Court of India",
+        "traceabilityStatus": "OFFICIAL_GOVERNMENT_REPOSITORY"
+      },
+      "statutoryProvisionsInterpreted": [
+        "Constitution of India (Article 21)",
+        "Constitution of India (Article 39A)",
+        "Legal Services Authorities Act, 1987 (Section 12)"
+      ],
+      "ratioSummary": "The right to speedy trial is an integral and essential part of the fundamental right to life and liberty enshrined in Article 21. Free legal services to the poor and needy is an es...",
+      "isSummaryMachineGenerated": true,
+      "verificationStatus": "PUBLISHED"
+    },
+    {
+      "id": "e1000000-0000-0000-0000-000000000004",
+      "courtName": "Supreme Court of India",
+      "courtLevel": "SUPREME_COURT",
+      "jurisdiction": "ALL_INDIA",
+      "precedentAuthority": "BINDING_NATIONWIDE",
+      "caseTitle": "D.K. Basu v. State of West Bengal",
+      "caseNumber": "Writ Petition (Crl.) No. 592 of 1987",
+      "citation": "(1997) 1 SCC 416; AIR 1997 SC 610",
+      "neutralCitation": "1996 INSC 1572",
+      "decisionDate": "1996-12-18",
+      "bench": "Kuldip Singh, Dr. A.S. Anand, JJ.",
+      "coramSize": 2,
+      "officialJudgmentUrl": "https://main.sci.gov.in/judgment/judis/13317.pdf",
+      "pdfSourceUrl": "https://main.sci.gov.in/judgment/judis/13317.pdf",
+      "documentChecksum": "35ec8912b7fef1c4ba27a6f2ea3ec1838cf4bc4d0590a561cbe1630cb92e59e3",
+      "checksumAlgorithm": "SHA-256",
+      "publicationDetails": {
+        "officialLawReports": [
+          "(1997) 1 SCC 416",
+          "AIR 1997 SC 610"
+        ],
+        "sourceOrganization": "Supreme Court of India",
+        "traceabilityStatus": "OFFICIAL_GOVERNMENT_REPOSITORY"
+      },
+      "statutoryProvisionsInterpreted": [
+        "Constitution of India (Article 21)",
+        "Constitution of India (Article 22)"
+      ],
+      "ratioSummary": "Custodial death and violence is one of the worst crimes in a civilized society governed by the Rule of Law. Fundamental rights under Articles 21 and 22 do not cease upon arrest. Th...",
+      "isSummaryMachineGenerated": true,
+      "verificationStatus": "PUBLISHED"
+    },
+    {
+      "id": "e1000000-0000-0000-0000-000000000005",
+      "courtName": "Supreme Court of India",
+      "courtLevel": "SUPREME_COURT",
+      "jurisdiction": "ALL_INDIA",
+      "precedentAuthority": "BINDING_NATIONWIDE",
+      "caseTitle": "State of Punjab and Others v. Jagjit Singh and Others",
+      "caseNumber": "Civil Appeal No. 213 of 2013",
+      "citation": "(2017) 1 SCC 148; AIR 2016 SC 5176",
+      "neutralCitation": "2016 INSC 847",
+      "decisionDate": "2016-10-26",
+      "bench": "J.S. Khehar, S.A. Bobde, JJ.",
+      "coramSize": 2,
+      "officialJudgmentUrl": "https://main.sci.gov.in/supremecourt/2012/3233/3233_2012_Judgement_26-Oct-2016.pdf",
+      "pdfSourceUrl": "https://main.sci.gov.in/supremecourt/2012/3233/3233_2012_Judgement_26-Oct-2016.pdf",
+      "documentChecksum": "76d54cf8e3092289c09b83b3e64817a2dbb277fbe60f381f2ecf30cf0b78479e",
+      "checksumAlgorithm": "SHA-256",
+      "publicationDetails": {
+        "officialLawReports": [
+          "(2017) 1 SCC 148",
+          "AIR 2016 SC 5176"
+        ],
+        "sourceOrganization": "Supreme Court of India",
+        "traceabilityStatus": "OFFICIAL_GOVERNMENT_REPOSITORY"
+      },
+      "statutoryProvisionsInterpreted": [
+        "Constitution of India (Article 14)",
+        "Constitution of India (Article 39(d))",
+        "Payment of Wages Act, 1936 (Section 15)"
+      ],
+      "ratioSummary": "An employee engaged on temporary or daily-wage basis for doing the same work which is being performed by regular appointees cannot be treated differentially in matter of pay. The p...",
+      "isSummaryMachineGenerated": true,
+      "verificationStatus": "PUBLISHED"
+    },
+    {
+      "id": "e1000000-0000-0000-0000-000000000006",
+      "courtName": "Supreme Court of India",
+      "courtLevel": "SUPREME_COURT",
+      "jurisdiction": "ALL_INDIA",
+      "precedentAuthority": "BINDING_NATIONWIDE",
+      "caseTitle": "Indian Medical Association v. V.P. Shantha and Others",
+      "caseNumber": "Civil Appeal No. 688 of 1993",
+      "citation": "(1995) 6 SCC 651; AIR 1996 SC 550",
+      "neutralCitation": "1995 INSC 598",
+      "decisionDate": "1995-11-13",
+      "bench": "S.C. Agrawal, Kuldip Singh, B.L. Hansaria, JJ.",
+      "coramSize": 3,
+      "officialJudgmentUrl": "https://main.sci.gov.in/judgment/judis/12818.pdf",
+      "pdfSourceUrl": "https://main.sci.gov.in/judgment/judis/12818.pdf",
+      "documentChecksum": "49eb35f8d91c28c8efd3883a31c5cf14e7a8df9e8e2c0e8631bb53d82a6ea0b2",
+      "checksumAlgorithm": "SHA-256",
+      "publicationDetails": {
+        "officialLawReports": [
+          "(1995) 6 SCC 651",
+          "AIR 1996 SC 550"
+        ],
+        "sourceOrganization": "Supreme Court of India",
+        "traceabilityStatus": "OFFICIAL_GOVERNMENT_REPOSITORY"
+      },
+      "statutoryProvisionsInterpreted": [
+        "Consumer Protection Act, 2019 (Section 2(42))",
+        "Consumer Protection Act, 2019 (Section 35)"
+      ],
+      "ratioSummary": "Service rendered to a patient by a medical practitioner or hospital by way of consultation, diagnosis, and treatment falls within the scope of \"service\" under Consumer Protection l...",
+      "isSummaryMachineGenerated": true,
+      "verificationStatus": "PUBLISHED"
+    },
+    {
+      "id": "e1000000-0000-0000-0000-000000000007",
+      "courtName": "High Court of Judicature at Bombay",
+      "courtLevel": "HIGH_COURT",
+      "jurisdiction": "MAHARASHTRA",
+      "precedentAuthority": "BINDING_WITHIN_STATE",
+      "caseTitle": "State of Maharashtra v. Bharatiya Hotel & Ors.",
+      "caseNumber": "Writ Petition No. 1284 of 2017",
+      "citation": "2018 (3) Bom CR 412; 2018 SCC OnLine Bom 1245",
+      "neutralCitation": "2018:BHC-OS:1245-DB",
+      "decisionDate": "2018-03-14",
+      "bench": "S.C. Dharmadhikari, Bharati H. Dangre, JJ.",
+      "coramSize": 2,
+      "officialJudgmentUrl": "https://bombayhighcourt.nic.in/judgments/2018/OSWP128417.pdf",
+      "pdfSourceUrl": "https://bombayhighcourt.nic.in/judgments/2018/OSWP128417.pdf",
+      "documentChecksum": "8b7899cd10f44390ea12a7e4b5263158c3f4e3c99026a213e4b7b25e792c3a50",
+      "checksumAlgorithm": "SHA-256",
+      "publicationDetails": {
+        "officialLawReports": [
+          "2018 (3) Bom CR 412",
+          "2018 SCC OnLine Bom 1245"
+        ],
+        "sourceOrganization": "High Court of Judicature at Bombay",
+        "traceabilityStatus": "OFFICIAL_GOVERNMENT_REPOSITORY"
+      },
+      "statutoryProvisionsInterpreted": [
+        "Maharashtra Shops and Establishments (Regulation of Employment and Conditions of Service) Act, 2017 (Section 6)",
+        "Maharashtra Shops and Establishments (Regulation of Employment and Conditions of Service) Act, 2017 (Section 13)"
+      ],
+      "ratioSummary": "The statutory benefits conferred upon workers under the Maharashtra Shops and Establishments (Regulation of Employment and Conditions of Service) Act, 2017—including maximum daily ...",
+      "isSummaryMachineGenerated": true,
+      "verificationStatus": "PUBLISHED"
+    },
+    {
+      "id": "e1000000-0000-0000-0000-000000000008",
+      "courtName": "High Court of Delhi",
+      "courtLevel": "HIGH_COURT",
+      "jurisdiction": "DELHI",
+      "precedentAuthority": "BINDING_WITHIN_STATE",
+      "caseTitle": "Delhi State Legal Services Authority v. Union of India & Ors.",
+      "caseNumber": "W.P.(C) 4412/2019",
+      "citation": "2019 SCC OnLine Del 11245; (2020) 266 DLT 142",
+      "neutralCitation": "2019:DHC:5421-DB",
+      "decisionDate": "2019-11-28",
+      "bench": "D.N. Patel, C.J., C. Hari Shankar, J.",
+      "coramSize": 2,
+      "officialJudgmentUrl": "https://delhihighcourt.nic.in/judgments/2019/WPC4412_2019.pdf",
+      "pdfSourceUrl": "https://delhihighcourt.nic.in/judgments/2019/WPC4412_2019.pdf",
+      "documentChecksum": "14fc2a7c430e71ab8e5306612df9e248f2c31e90143896dfa285d03a1104e672",
+      "checksumAlgorithm": "SHA-256",
+      "publicationDetails": {
+        "officialLawReports": [
+          "2019 SCC OnLine Del 11245",
+          "(2020) 266 DLT 142"
+        ],
+        "sourceOrganization": "High Court of Delhi",
+        "traceabilityStatus": "OFFICIAL_GOVERNMENT_REPOSITORY"
+      },
+      "statutoryProvisionsInterpreted": [
+        "Legal Services Authorities Act, 1987 (Section 12)",
+        "Delhi State Legal Services Authority Regulations, 2018 (Regulation 7)"
+      ],
+      "ratioSummary": "The statutory right to legal aid under Section 12 of the Legal Services Authorities Act, 1987 is not confined to formal civil and criminal court litigation. It extends equally to a...",
+      "isSummaryMachineGenerated": true,
+      "verificationStatus": "PUBLISHED"
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Scale,
+  Gavel,
   MessageSquare,
   BookOpen,
   Compass,
@@ -55,6 +56,7 @@ export default function Navbar() {
     { path: "/constitution", label: "Constitution", icon: Landmark },
     { path: "/legislation", label: "Central Acts & Rules", icon: FileText },
     { path: "/states", label: "State Laws & UTs", icon: MapPin },
+    { path: "/case-law", label: "Case Law & Precedents", icon: Gavel },
     { path: "/rights", label: "Know Your Rights", icon: BookOpen },
     { path: "/navigator", label: "Action Navigator", icon: Compass },
     { path: "/aid-finder", label: "Legal Aid Finder", icon: HeartHandshake },
