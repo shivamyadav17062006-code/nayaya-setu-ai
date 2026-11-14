@@ -11,11 +11,15 @@ import {
   ExternalLink,
   Copy,
   Check,
-  Languages
+  Languages,
+  AlertTriangle,
+  RefreshCw,
+  Database
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { useChat } from "@/hooks/useChat";
 import { SUPPORTED_LANGUAGES } from "@/types";
+
 export default function Chat() {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get("q");
@@ -23,18 +27,31 @@ export default function Chat() {
   const [selectedLanguage, setSelectedLanguage] = useState("en");
   const [isListening, setIsListening] = useState(false);
   const [copiedId, setCopiedId] = useState(null);
+  const [isCheckingDb, setIsCheckingDb] = useState(false);
   const messagesEndRef = useRef(null);
+
   const {
     sessions,
     activeSessionId,
     messages,
     isLoading,
     isTyping,
+    dbPersisted,
+    dbStatus,
+    dbWarning,
+    checkDbConnection,
     sendMessage,
     startNewSession,
     selectSession,
     deleteSession
   } = useChat({ language: selectedLanguage });
+
+  const handleRetryDb = async () => {
+    setIsCheckingDb(true);
+    await checkDbConnection();
+    setIsCheckingDb(false);
+    toast.success("Database status refreshed");
+  };
   useEffect(() => {
     if (initialQuery && messages.length === 0) {
       sendMessage(initialQuery);
@@ -120,6 +137,38 @@ export default function Chat() {
           </a></div></aside>{
     /* Main Chat Area */
   }<div className="flex-1 flex flex-col h-full bg-slate-50">{
+    /* Database Persistence Offline Warning Banner */
+    dbPersisted === false && (
+      <div className="bg-amber-50/90 border-b border-amber-200/80 px-4 py-2.5 text-xs text-amber-900 flex items-center justify-between gap-3 shadow-xs">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0" />
+          <div className="truncate">
+            <span className="font-semibold text-amber-950">Stateless Session Mode: </span>
+            <span className="text-amber-800">
+              {dbWarning || "Cloud database sync is unavailable. Responses are active, but history is kept only in your local browser storage."}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <span
+            className="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-300 capitalize"
+            title={`Database status: ${dbStatus}`}
+          >
+            Local Mode ({dbStatus})
+          </span>
+          <button
+            onClick={handleRetryDb}
+            disabled={isCheckingDb}
+            className="flex items-center gap-1 px-2 py-1 rounded text-[11px] font-medium bg-white hover:bg-amber-100 border border-amber-300 text-amber-900 transition-colors cursor-pointer"
+            title="Retry PostgreSQL connection check"
+          >
+            <RefreshCw className={`w-3 h-3 ${isCheckingDb ? "animate-spin text-amber-600" : ""}`} />
+            <span className="hidden md:inline">Retry</span>
+          </button>
+        </div>
+      </div>
+    )
+  }{
     /* Messages Container */
   }<div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">{messages.length === 0 ? <div className="h-full flex flex-col items-center justify-center text-center max-w-lg mx-auto space-y-4"><div className="w-16 h-16 rounded-2xl bg-amber-100 flex items-center justify-center text-amber-600 shadow-sm"><Scale className="w-8 h-8" /></div><div className="space-y-1"><h3 className="text-xl font-bold text-slate-900">NyayaSaathi Legal Assistant</h3><p className="text-xs text-slate-500">
                   Grounded in the Constitution of India, Bharatiya Nyaya Sanhita, Labour Codes, and Consumer Protection statutes.

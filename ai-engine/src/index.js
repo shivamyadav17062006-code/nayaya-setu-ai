@@ -35,4 +35,24 @@ const server = app.listen(config.port, config.host, () => {
   console.log(`   Supabase: ${config.supabaseUrl}`);
 });
 
+const shutdown = (signal) => {
+  console.log(`\n📛 [AI Engine] Received ${signal}. Shutting down gracefully...`);
+  server.close(() => {
+    console.log('✅ [AI Engine] Server closed. Goodbye!');
+    process.exit(0);
+  });
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
+process.on('unhandledRejection', (reason) => {
+  console.error('⚠️ [AI Engine] Unhandled Promise Rejection:', reason);
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('💥 [AI Engine] Uncaught Exception:', err);
+  process.exit(1);
+});
+
 export default app;

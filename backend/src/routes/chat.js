@@ -1,16 +1,25 @@
 import { Router } from 'express';
 import { body, validationResult } from 'express-validator';
-import { handleChat } from '../controllers/chatController.js';
+import { handleChat, getDbStatus } from '../controllers/chatController.js';
+import { optionalAuth } from '../middleware/auth.js';
 
 const router = Router();
 
 /**
+ * GET /api/chat/db-status
+ * Lightweight probe for the frontend to check whether Prisma / PostgreSQL is live.
+ * Returns no application data — safe to call unauthenticated on localhost.
+ */
+router.get('/db-status', getDbStatus);
+
+/**
  * POST /api/chat
  * Body: { message: string, language?: string, sessionId?: string }
- * Returns: { answer, sessionId, language, sources?, suggestedActions? }
+ * Returns: { answer, sessionId, language, sources?, suggestedActions?, persisted, dbStatus, dbWarning? }
  */
 router.post(
   '/',
+  optionalAuth,
   [
     body('message')
       .isString()

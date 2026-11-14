@@ -141,7 +141,7 @@ function buildSchemes(request, isEligible) {
 export async function checkEligibility(req, res, next) {
   try {
     const request = req.body || {};
-    const { income = 0, beneficiaryType = 'GENERAL', state = 'Delhi', category = 'GENERAL' } = request;
+    const { income = 0, beneficiaryType = 'GENERAL', state: _state = 'Delhi', category: _category = 'GENERAL' } = request;
 
     const incomeEligible = Number(income) <= NALSA_INCOME_THRESHOLD;
     const categoryEligible = AUTOMATIC_ELIGIBILITY_TYPES.has(

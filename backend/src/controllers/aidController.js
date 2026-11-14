@@ -68,7 +68,7 @@ function withProviderFields(provider) {
   };
 }
 
-export async function getLegalAidProviders(req, res, next) {
+export async function getLegalAidProviders(req, res, _next) {
   const {
     state,
     category,

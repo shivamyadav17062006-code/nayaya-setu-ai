@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "NyayaSaathi — AI-powered legal awareness platform for India",
   "private": true,
+  "type": "module",
   "workspaces": [
     "frontend",
     "backend",
@@ -23,11 +24,13 @@
     "db:check": "npm run db:check --workspace=backend",
     "lint": "npm run lint --workspaces",
     "test": "npm run test --workspaces --if-present",
+    "test:services": "node scripts/testThreeServices.js",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down"
   },
   "devDependencies": {
-    "concurrently": "^8.2.2"
+    "concurrently": "^8.2.2",
+    "prisma": "^5.22.0"
   },
   "engines": {
     "node": ">=18.0.0",

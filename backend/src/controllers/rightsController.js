@@ -80,7 +80,7 @@ function withActFields(sections) {
   }));
 }
 
-export async function listRightCategories(_req, res, next) {
+export async function listRightCategories(_req, res, _next) {
   try {
     const supabaseCategories = await supabaseService.getCategories();
     if (supabaseCategories && supabaseCategories.length > 0) {
@@ -228,7 +228,7 @@ export async function getRightCategoryBySlug(req, res, next) {
   }
 }
 
-export async function searchSections(req, res, next) {
+export async function searchSections(req, res, _next) {
   try {
     const q = (req.query.q ?? '').trim();
     const limit = Math.min(parseInt(req.query.limit ?? '20', 10), 50);

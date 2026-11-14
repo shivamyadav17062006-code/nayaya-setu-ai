@@ -1,6 +1,13 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config(); // fallback to current working directory
+
 import { createApp } from './app.js';
-import { prisma, checkPrismaConnection } from './lib/prisma.js';
+import { checkPrismaConnection, disconnectPrisma } from './lib/prisma.js';
 
 async function bootstrap() {
   try {
@@ -28,7 +35,7 @@ async function bootstrap() {
     console.log(`\n📛  Received ${signal}. Shutting down gracefully...`);
     server.close(async () => {
       try {
-        await prisma.$disconnect();
+        await disconnectPrisma();
       } catch {}
       console.log('✅  Database disconnected. Goodbye!');
       process.exit(0);

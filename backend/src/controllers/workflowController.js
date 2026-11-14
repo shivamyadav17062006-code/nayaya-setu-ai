@@ -152,7 +152,7 @@ function normalizeWorkflow(workflow) {
   };
 }
 
-export async function listWorkflows(_req, res, next) {
+export async function listWorkflows(_req, res, _next) {
   try {
     const supabaseWfs = await supabaseService.getWorkflows();
     if (supabaseWfs && supabaseWfs.length > 0) {
