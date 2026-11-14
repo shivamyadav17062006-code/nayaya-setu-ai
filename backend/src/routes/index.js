@@ -10,12 +10,14 @@ import legislationRouter from './legislation.js';
 import stateLegislationRouter from './stateLegislation.js';
 import caseLawRouter from './caseLaw.js';
 import kmsRouter from './kms.js';
+import rightsDiscoveryRouter from './rightsDiscovery.js';
 
 export const router = Router();
 
 // Mount all feature routes
 router.use('/chat', chatRouter);
 router.use('/rights', rightsRouter);
+router.use('/rights-discovery', rightsDiscoveryRouter);
 router.use('/aid', aidRouter);
 router.use('/workflows', workflowsRouter);
 router.use('/eligibility', eligibilityRouter);

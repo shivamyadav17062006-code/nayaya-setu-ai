@@ -59,6 +59,7 @@ export default function Navbar() {
     { path: "/states", label: "State Laws & UTs", icon: MapPin },
     { path: "/case-law", label: "Case Law & Precedents", icon: Gavel },
     { path: "/admin/kms", label: "Legal KMS", icon: Database },
+    { path: "/rights/discover", label: "Rights Discovery", icon: Compass },
     { path: "/rights", label: "Know Your Rights", icon: BookOpen },
     { path: "/navigator", label: "Action Navigator", icon: Compass },
     { path: "/aid-finder", label: "Legal Aid Finder", icon: HeartHandshake },
