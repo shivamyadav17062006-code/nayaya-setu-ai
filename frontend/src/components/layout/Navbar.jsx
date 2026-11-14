@@ -21,6 +21,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { authApi } from "@/api/auth";
 import AuthModal from "@/components/auth/AuthModal";
+import AccessibilityToolbar from "@/components/ui/AccessibilityToolbar";
 
 export default function Navbar() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -68,6 +69,9 @@ export default function Navbar() {
 
   const handleLanguageChange = (langCode) => {
     i18n.changeLanguage(langCode);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("nyayasaathi_lang", langCode);
+    }
   };
 
   const handleLogout = () => {
@@ -77,6 +81,12 @@ export default function Navbar() {
 
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 bg-slate-900 text-white px-4 py-2 rounded-xl z-50 text-xs font-semibold shadow-lg focus:outline-none focus:ring-2 focus:ring-amber-400"
+      >
+        Skip to main content
+      </a>
       <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
@@ -118,14 +128,16 @@ export default function Navbar() {
               })}
             </nav>
 
-            {/* Right Controls: Language Dropdown + Citizen Account + CTA */}
-            <div className="hidden lg:flex items-center gap-3">
+            {/* Right Controls: Language Dropdown + Accessibility + Citizen Account + CTA */}
+            <div className="hidden lg:flex items-center gap-2.5">
+              <AccessibilityToolbar />
               <div className="relative flex items-center gap-1.5 text-xs text-slate-600 bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200">
                 <Globe className="w-3.5 h-3.5 text-slate-500" />
                 <select
                   value={i18n.language || "en"}
                   onChange={(e) => handleLanguageChange(e.target.value)}
                   className="bg-transparent border-none text-xs font-medium text-slate-800 focus:outline-none cursor-pointer"
+                  aria-label="Interface Language"
                 >
                   {languages.map((l) => (
                     <option key={l.code} value={l.code}>

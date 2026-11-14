@@ -11,6 +11,7 @@ import stateLegislationRouter from './stateLegislation.js';
 import caseLawRouter from './caseLaw.js';
 import kmsRouter from './kms.js';
 import rightsDiscoveryRouter from './rightsDiscovery.js';
+import speechRouter from './speech.js';
 
 export const router = Router();
 
@@ -27,6 +28,7 @@ router.use('/legislation', legislationRouter);
 router.use('/states', stateLegislationRouter);
 router.use('/case-law', caseLawRouter);
 router.use('/kms', kmsRouter);
+router.use('/speech', speechRouter);
 
 // API discovery & manifest endpoint
 router.get('/', (_req, res) => {
