@@ -125,19 +125,30 @@ model SectionRight {
 // ----------------------------------------------------------------------------
 
 model ComplaintWorkflow {
-  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  category        String?
-  categoryId      String?           @map("category_id") @db.Uuid
-  title           String
-  description     String?           @db.Text
-  jurisdiction    String?           @default("BOTH")
-  state           String?
-  targetAuthority String?           @map("target_authority")
-  officialUrl     String?           @map("official_url")
-  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
-  steps           ComplaintStep[]
-  categoryRel     RightCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+  id                    String                 @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category              String?
+  categoryId            String?                @map("category_id") @db.Uuid
+  title                 String
+  description           String?                @db.Text
+  jurisdiction          String?                @default("BOTH")
+  state                 String?
+  targetAuthority       String?                @map("target_authority")
+  officialUrl           String?                @map("official_url")
+  eligibilityConditions String[]               @default([]) @map("eligibility_conditions")
+  applicableLaws        String[]               @default([]) @map("applicable_laws")
+  requiredDocuments     String[]               @default([]) @map("required_documents")
+  verifiedTimelines     String?                @map("verified_timelines")
+  fees                  String?
+  escalationRoute       String?                @map("escalation_route")
+  appealMechanism       String?                @map("appeal_mechanism")
+  officialSourceLinks   String[]               @default([]) @map("official_source_links")
+  lastVerifiedAt        DateTime?              @default(now()) @map("last_verified_at") @db.Timestamptz(6)
+  verificationStatus    String?                @default("VERIFIED") @map("verification_status")
+  createdAt             DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt             DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
+  steps                 ComplaintStep[]
+  userProgress          UserWorkflowProgress[]
+  categoryRel           RightCategory?         @relation(fields: [categoryId], references: [id], onDelete: SetNull)
 
   @@map("complaint_workflows")
 }
@@ -155,6 +166,9 @@ model ComplaintStep {
   documents         String[]          @default([])
   requiredDocuments String[]          @default([]) @map("required_documents")
   timeLimit         String?           @map("time_limit")
+  fees              String?
+  conditionalBranch Json?             @map("conditional_branch")
+  tips              String[]          @default([])
   createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
 
@@ -233,9 +247,10 @@ model User {
   state         String?
   language      String         @default("en")
   role          String         @default("USER") // "USER" | "ADMIN" | "PARALEGAL"
-  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  createdAt     DateTime               @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
   conversations Conversation[]
+  workflowProgress UserWorkflowProgress[]
 
   @@map("users")
 }
@@ -314,4 +329,23 @@ model LegalImportBatch {
   createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
 
   @@map("legal_import_batches")
+}
+
+model UserWorkflowProgress {
+  id               String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId           String?           @map("user_id") @db.Uuid
+  sessionId        String?           @map("session_id")
+  workflowId       String            @map("workflow_id") @db.Uuid
+  currentStep      Int               @default(1) @map("current_step")
+  completedSteps   Int[]             @default([]) @map("completed_steps")
+  checkedDocuments String[]          @default([]) @map("checked_documents")
+  branchChoices    Json?             @default("{}") @map("branch_choices")
+  notes            String?           @db.Text
+  isCompleted      Boolean           @default(false) @map("is_completed")
+  createdAt        DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  workflow         ComplaintWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  user             User?             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_workflow_progress")
 }
