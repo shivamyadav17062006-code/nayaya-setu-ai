@@ -137,7 +137,15 @@ class LegalService:
             return self._client
 
         self._client_checked = True
-        key = settings.SUPABASE_SERVICE_ROLE_KEY or settings.SUPABASE_ANON_KEY
+
+        def _is_valid(k: str) -> bool:
+            return bool(k and not k.startswith("your-") and "[YOUR-" not in k)
+
+        key = (
+            settings.SUPABASE_SERVICE_ROLE_KEY
+            if _is_valid(settings.SUPABASE_SERVICE_ROLE_KEY)
+            else (settings.SUPABASE_ANON_KEY if _is_valid(settings.SUPABASE_ANON_KEY) else "")
+        )
         if not settings.SUPABASE_URL or not key:
             logger.info("Supabase credentials not set — vector retrieval disabled")
             return None

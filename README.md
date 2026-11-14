@@ -200,18 +200,34 @@ pip install -r requirements.txt
 python embedding.py       # add --force to re-embed existing sections
 ```
 
-### 5. Run All Three Services
+### 5. Run the Services
+
+You can start all three services simultaneously with a single command (configured with auto-termination of child processes on exit):
+
 ```bash
-# From the repository root — starts the AI engine, backend and frontend
+# Starts AI Engine (:8001), Express Backend (:8000), and Vite Frontend (:3000)
+npm run dev
+# or
 npm run dev:full
 ```
 
-Or run them individually:
-
+#### Running Services Independently for Debugging:
 ```bash
-npm run dev:ai   # FastAPI AI engine on :8001
-npm run dev      # Express backend on :8000 + Vite frontend on :3000
+# 1. FastAPI AI engine only (port 8001)
+npm run dev:ai
+
+# 2. Node.js Express backend only (port 8000)
+npm run dev:backend
+
+# 3. React Vite frontend only (port 3000)
+npm run dev:frontend
 ```
+
+#### Health & Diagnostic Endpoints:
+- **Backend Health**: `GET http://localhost:8000/health` or `http://localhost:8000/api/health`
+- **AI Engine Health**: `GET http://localhost:8001/health`
+- **Database Verification**: `npm run db:check`
+- **Prisma Schema Validation**: `npm run --workspace=backend db:generate` & `npx prisma validate`
 
 - **Frontend App**: `http://localhost:3000`
 - **Backend API**: `http://localhost:8000/api`

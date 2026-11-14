@@ -3,20 +3,22 @@
   "version": "1.0.0",
   "description": "NyayaSaathi Backend API — Node.js + Express + Prisma",
   "private": true,
-  "main": "dist/index.js",
+  "main": "src/index.js",
+  "type": "module",
   "scripts": {
-    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
-    "build": "tsc --project tsconfig.json",
-    "start": "node dist/index.js",
+    "dev": "node --watch src/index.js",
+    "dev:ts": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "build": "echo 'JavaScript project — no compilation needed'",
+    "start": "node src/index.js",
     "db:migrate": "prisma migrate dev",
     "db:migrate:deploy": "prisma migrate deploy",
     "db:generate": "prisma generate",
-    "db:seed": "ts-node --transpile-only prisma/seed.ts",
+    "db:seed": "node prisma/seed.js",
     "db:studio": "prisma studio",
     "db:reset": "prisma migrate reset --force",
-    "db:check": "ts-node --transpile-only scripts/checkSupabase.ts",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
+    "db:check": "node scripts/checkSupabase.js",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "test": "jest --passWithNoTests"
   },
   "dependencies": {
@@ -56,6 +58,6 @@
     "typescript": "^5.3.3"
   },
   "prisma": {
-    "seed": "ts-node --transpile-only prisma/seed.ts"
+    "seed": "node prisma/seed.js"
   }
 }

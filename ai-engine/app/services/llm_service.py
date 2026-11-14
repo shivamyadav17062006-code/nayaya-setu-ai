@@ -163,6 +163,23 @@ _MOCK_RESPONSES: dict[str, str] = {
 }
 
 
+def sanitize_api_key(key: Optional[str]) -> Optional[str]:
+    """Return key if it is a real key, or None if empty or a placeholder."""
+    if not key:
+        return None
+    val = key.strip()
+    if (
+        val == ""
+        or val.startswith("your-")
+        or val.startswith("[YOUR-")
+        or val.startswith("<")
+        or val == "your-gemini-api-key"
+        or len(val) < 15
+    ):
+        return None
+    return val
+
+
 def _get_mock_response(intent: str, question: str, language: str) -> str:
     """Return a realistic mock legal response based on classified intent."""
     base = _MOCK_RESPONSES.get(intent, _MOCK_RESPONSES["GENERAL"])
@@ -182,11 +199,19 @@ class LLMService:
         provider = settings.LLM_PROVIDER
 
         if provider == "google":
+            api_key = sanitize_api_key(settings.GOOGLE_API_KEY) or sanitize_api_key(settings.GEMINI_API_KEY)
+            if not api_key:
+                logger.warning(
+                    "[LLMService] Gemini API key not configured or contains placeholder. "
+                    "Operating in grounded statutory mock mode."
+                )
+                return None
+
             from langchain_google_genai import ChatGoogleGenerativeAI  # type: ignore
 
             llm = ChatGoogleGenerativeAI(
                 model=settings.GEMINI_MODEL,
-                google_api_key=settings.GOOGLE_API_KEY or settings.GEMINI_API_KEY,
+                google_api_key=api_key,
                 temperature=0.3,
                 convert_system_message_to_human=True,
             )

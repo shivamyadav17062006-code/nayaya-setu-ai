@@ -1,21 +1,189 @@
-# Dependencies
-node_modules/
-.pnp
-.pnp.js
+# ==============================================================================
+# NyayaSaathi (न्यायसाथी) — Production .gitignore
+# Stack: React + Vite | Node.js + Express + Prisma | Supabase | Python FastAPI RAG
+# ==============================================================================
 
-# Build outputs
-dist/
-build/
-.next/
-out/
-
-# Environment files
+# ------------------------------------------------------------------------------
+# 1. Environment Variables & Secrets (NEVER COMMIT)
+# ------------------------------------------------------------------------------
 .env
+.env.*
+!.env.example
+!*.env.example
+!**/.env.example
+
+# Local development and test overrides
 .env.local
 .env.*.local
+.env.development
+.env.test
+.env.production
+.env.staging
 
-# Logs
+# Keys, certificates, and credentials
+*.pem
+*.key
+*.cert
+*.crt
+*.pfx
+*.p12
+*.keystore
+id_rsa
+id_ed25519
+service-account*.json
+credentials.json
+*secret*.json
+
+# ------------------------------------------------------------------------------
+# 2. Dependencies & Package Management
+# ------------------------------------------------------------------------------
+# Node.js dependencies across root and all workspaces
+node_modules/
+**/node_modules/
+.pnp/
+.pnp.js
+
+# Alternative package manager locks (NyayaSaathi standardizes on npm workspaces)
+yarn.lock
+pnpm-lock.yaml
+bun.lockb
+
+# ------------------------------------------------------------------------------
+# 3. Build Artifacts & Bundler Outputs
+# ------------------------------------------------------------------------------
+# Production builds
+dist/
+**/dist/
+build/
+**/build/
+out/
+**/out/
+
+# Bundler & Framework caches
+.cache/
+**/.cache/
+.vite/
+**/.vite/
+.parcel-cache/
+.turbo/
+.next/
+.nuxt/
+
+# TypeScript build incremental state
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# ------------------------------------------------------------------------------
+# 4. Backend (Node.js / Express / Prisma)
+# ------------------------------------------------------------------------------
+# Backend compiled output
+backend/dist/
+
+# Prisma (Keep migrations committed; ignore dev databases and local dumps)
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+*.sqlite-journal
+
+# File uploads / local runtime storage
+uploads/
+**/uploads/
+storage/
+**/storage/
+
+# ------------------------------------------------------------------------------
+# 5. AI Engine (Python 3.14 / FastAPI / PyTorch / Sentence-Transformers)
+# ------------------------------------------------------------------------------
+# Python virtual environments
+venv/
+**/venv/
+.venv/
+**/.venv/
+env/
+**/env/
+ENV/
+**/ENV/
+env.bak/
+venv.bak/
+
+# Bytecode & CPython caches
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# PyTorch, HuggingFace, and ML model weights
+# (Prevent accidental commits of large binary model checkpoints)
+*.bin
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.ckpt
+models/
+**/models/
+hf_cache/
+**/.cache/huggingface/
+**/.cache/torch/
+
+# Python packaging & distributions
+*.egg-info/
+**/*.egg-info/
+*.egg
+.eggs/
+develop-eggs/
+downloads/
+eggs/
+parts/
+sdist/
+var/
+wheels/
+*.manifest
+*.spec
+
+# Python testing, typing & coverage
+.pytest_cache/
+**/.pytest_cache/
+.mypy_cache/
+**/.mypy_cache/
+.ruff_cache/
+**/.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+.hypothesis/
+.tox/
+
+# ------------------------------------------------------------------------------
+# 6. Supabase & Database Infrastructure
+# ------------------------------------------------------------------------------
+# Supabase CLI temporary files and local branch states
+supabase/.temp/
+supabase/.branches/
+.supabase/
+
+# Local PostgreSQL container volumes (Docker)
+docker/data/
+postgres-data/
+pgdata/
+
+# ------------------------------------------------------------------------------
+# 7. Testing & Quality Assurance
+# ------------------------------------------------------------------------------
+coverage/
+**/coverage/
+*.lcov
+.nyc_output/
+reports/
+
+# ------------------------------------------------------------------------------
+# 8. Logs & Diagnostics
+# ------------------------------------------------------------------------------
 logs/
+**/logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -23,60 +191,55 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# OS files
+# Crash dumps
+core
+core.*
+
+# ------------------------------------------------------------------------------
+# 9. Operating System & Local Files
+# ------------------------------------------------------------------------------
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# Windows
 Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+
+# ------------------------------------------------------------------------------
+# 10. IDE & Editor Artifacts
+# ------------------------------------------------------------------------------
+# JetBrains (IntelliJ, WebStorm, PyCharm)
+.idea/
+
+# Visual Studio Code (Ignore local workspace settings; keep shared recommendations)
+.vscode/settings.json
+.vscode/*.log
+
+# Vim, Emacs, and general editors
 *.swp
 *.swo
-
-# IDE
-.vscode/settings.json
-.idea/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
 *.sw?
+*~
+.#*
+\#*#
 
-# Prisma
-backend/prisma/migrations/**/*.sql
-!backend/prisma/migrations/
-
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-venv/
-.venv/
-env/
-ENV/
-*.egg-info/
-dist/
-*.egg
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-htmlcov/
-.coverage
-.coverage.*
-
-# Docker
-.docker/
-
-# Testing
-coverage/
-*.lcov
-
-# TypeScript
-*.tsbuildinfo
-
-# Temporary
+# ------------------------------------------------------------------------------
+# 11. Temporary Files
+# ------------------------------------------------------------------------------
 tmp/
+**/tmp/
 temp/
-.cache/
-
-# Package locks (keep only one)
-yarn.lock
-pnpm-lock.yaml
+**/temp/

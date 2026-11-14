@@ -10,6 +10,7 @@ from app.database import engine
 from app.schemas import HealthResponse
 from app.services.embedding_service import embedding_service
 from app.services.legal_service import legal_service
+from app.services.llm_service import sanitize_api_key
 
 router = APIRouter()
 
@@ -26,6 +27,8 @@ async def health_check():
     except Exception as exc:
         details["database_error"] = str(exc)[:200]
 
+    gemini_key = sanitize_api_key(settings.GOOGLE_API_KEY) or sanitize_api_key(settings.GEMINI_API_KEY)
+    details["gemini_configured"] = bool(gemini_key)
     details["supabase_configured"] = legal_service.is_configured
     details["llm_model"] = (
         settings.GEMINI_MODEL if settings.LLM_PROVIDER == "google" else settings.LLM_PROVIDER

@@ -1,189 +1,254 @@
 // backend/prisma/schema.prisma
+// NyayaSaathi (न्यायसाथी) — Single Source of Truth for Prisma ORM
+// Aligned exactly with PostgreSQL 14 tables
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
+// ----------------------------------------------------------------------------
+// 1. Statutory Knowledge Graph
+// ----------------------------------------------------------------------------
+
 model LegalAct {
-  id           String          @id @default(cuid())
-  title        String
-  actNumber    String?
-  year         Int
-  jurisdiction String          // "CENTRAL" | "STATE"
-  state        String?
-  category     String          // e.g. "LABOUR", "WOMEN", "CRIMINAL"
-  sourceUrl    String
-  status       String          @default("ACTIVE")
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  sections     LegalSection[]
-  amendments   Amendment[]
+  id                 String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  title              String
+  actNumber          String?        @map("act_number")
+  year               Int
+  jurisdiction       String         // "CENTRAL" | "STATE"
+  state              String?
+  category           String?
+  description        String?
+  sourceUrl          String         @map("source_url")
+  status             String?        @default("ACTIVE")
+  effectiveFrom      DateTime?      @map("effective_from") @db.Date
+  effectiveTo        DateTime?      @map("effective_to") @db.Date
+  verificationStatus String?        @default("PENDING") @map("verification_status")
+  lastVerifiedAt     DateTime?      @map("last_verified_at") @db.Timestamptz(6)
+  createdAt          DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sections           LegalSection[]
+
+  @@map("legal_acts")
 }
 
 model LegalSection {
-  id              String               @id @default(cuid())
-  sectionNumber   String
-  title           String?
-  originalText    String               @db.Text
-  simplifiedText  String               @db.Text
-  effectiveDate   DateTime?
-  actId           String
-  act             LegalAct             @relation(fields: [actId], references: [id])
-  rights          SectionRight[]
-  beneficiaries   SectionBeneficiary[]
-  remedies        LegalRemedy[]
-  translations    Translation[]
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @updatedAt
+  id             String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actId          String               @map("act_id") @db.Uuid
+  sectionNumber  String               @map("section_number")
+  title          String?              @map("section_title")
+  originalText   String               @map("original_text") @db.Text
+  simplifiedText String?              @map("simplified_text") @db.Text
+  effectiveFrom  DateTime?            @map("effective_from") @db.Date
+  effectiveTo    DateTime?            @map("effective_to") @db.Date
+  createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
+  act            LegalAct             @relation(fields: [actId], references: [id], onDelete: Cascade)
+  rights         SectionRight[]
+  beneficiaries  SectionBeneficiary[]
+  remedies       LegalRemedy[]
+  chunks         LegalChunk[]
 
   @@unique([actId, sectionNumber])
-}
-
-model RightCategory {
-  id          String         @id @default(cuid())
-  name        String         @unique
-  slug        String         @unique
-  description String
-  icon        String?
-  sections    SectionRight[]
+  @@map("legal_sections")
 }
 
 model Beneficiary {
-  id          String               @id @default(cuid())
+  id          String               @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name        String               @unique
   slug        String               @unique
-  description String
+  description String?              @db.Text
   icon        String?
+  createdAt   DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime             @updatedAt @map("updated_at") @db.Timestamptz(6)
   sections    SectionBeneficiary[]
+
+  @@map("beneficiaries")
 }
 
-model SectionRight {
-  sectionId       String
-  rightCategoryId String
-  section         LegalSection  @relation(fields: [sectionId], references: [id])
-  rightCategory   RightCategory @relation(fields: [rightCategoryId], references: [id])
+model RightCategory {
+  id          String              @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String              @unique
+  slug        String              @unique
+  description String?             @db.Text
+  icon        String?
+  createdAt   DateTime            @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime            @updatedAt @map("updated_at") @db.Timestamptz(6)
+  sections    SectionRight[]
+  workflows   ComplaintWorkflow[]
 
-  @@id([sectionId, rightCategoryId])
+  @@map("right_categories")
 }
 
 model SectionBeneficiary {
-  sectionId     String
-  beneficiaryId String
-  section       LegalSection @relation(fields: [sectionId], references: [id])
-  beneficiary   Beneficiary  @relation(fields: [beneficiaryId], references: [id])
+  sectionId     String       @map("section_id") @db.Uuid
+  beneficiaryId String       @map("beneficiary_id") @db.Uuid
+  section       LegalSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  beneficiary   Beneficiary  @relation(fields: [beneficiaryId], references: [id], onDelete: Cascade)
 
   @@id([sectionId, beneficiaryId])
+  @@map("section_beneficiaries")
 }
 
-model LegalRemedy {
-  id            String       @id @default(cuid())
-  sectionId     String
-  section       LegalSection @relation(fields: [sectionId], references: [id])
-  remedyType    String       // "COMPLAINT", "COURT", "TRIBUNAL", "AUTHORITY"
-  title         String
-  description   String       @db.Text
-  authority     String?
-  contactInfo   String?
-  timeLimit     String?
-  officialUrl   String?
+model SectionRight {
+  sectionId       String        @map("section_id") @db.Uuid
+  rightCategoryId String        @map("category_id") @db.Uuid
+  section         LegalSection  @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  rightCategory   RightCategory @relation(fields: [rightCategoryId], references: [id], onDelete: Cascade)
+
+  @@id([sectionId, rightCategoryId])
+  @@map("section_categories")
 }
 
-model LegalAidProvider {
-  id           String   @id @default(cuid())
-  name         String
-  type         String   // "NALSA" | "SLSA" | "DLSA" | "NGO" | "CLINIC"
-  state        String?
-  district     String?
-  address      String?
-  phone        String?
-  email        String?
-  website      String?
-  eligibility  String?  @db.Text
-  services     String[] // array of service types
-  isActive     Boolean  @default(true)
-  createdAt    DateTime @default(now())
-}
+// ----------------------------------------------------------------------------
+// 2. Complaints & Legal Aid
+// ----------------------------------------------------------------------------
 
 model ComplaintWorkflow {
-  id          String              @id @default(cuid())
-  category    String              // "LABOUR", "DOMESTIC_VIOLENCE", etc.
-  title       String
-  description String              @db.Text
-  steps       ComplaintStep[]
-  createdAt   DateTime            @default(now())
+  id              String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  category        String?
+  categoryId      String?           @map("category_id") @db.Uuid
+  title           String
+  description     String?           @db.Text
+  jurisdiction    String?           @default("BOTH")
+  state           String?
+  targetAuthority String?           @map("target_authority")
+  officialUrl     String?           @map("official_url")
+  createdAt       DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt       DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+  steps           ComplaintStep[]
+  categoryRel     RightCategory?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
+  @@map("complaint_workflows")
 }
 
 model ComplaintStep {
-  id          String            @id @default(cuid())
-  workflowId  String
-  workflow    ComplaintWorkflow @relation(fields: [workflowId], references: [id])
-  stepNumber  Int
+  id                String            @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workflowId        String            @map("workflow_id") @db.Uuid
+  workflow          ComplaintWorkflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
+  stepNumber        Int               @map("step_number")
+  title             String
+  instructions      String?           @db.Text
+  description       String?           @db.Text
+  authority         String?
+  officialUrl       String?           @map("official_url")
+  documents         String[]          @default([])
+  requiredDocuments String[]          @default([]) @map("required_documents")
+  timeLimit         String?           @map("time_limit")
+  createdAt         DateTime          @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt         DateTime          @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([workflowId, stepNumber])
+  @@map("workflow_steps")
+}
+
+model LegalAidProvider {
+  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String
+  type           String    @map("provider_type") // "NALSA" | "SLSA" | "DLSA" | "TLSC" | "NGO" | "OTHER"
+  state          String?
+  district       String?
+  address        String?
+  phone          String?
+  email          String?
+  website        String?
+  eligibility    String?   @map("eligibility_information") @db.Text
+  services       String[]  @default([])
+  isActive       Boolean   @default(true) @map("is_active")
+  verified       Boolean   @default(false)
+  lastVerifiedAt DateTime? @map("last_verified_at") @db.Timestamptz(6)
+  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("legal_aid_providers")
+}
+
+model LegalRemedy {
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sectionId   String       @map("section_id") @db.Uuid
+  section     LegalSection @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  remedyType  String       @map("remedy_type") // "COMPLAINT", "COURT", "TRIBUNAL", "AUTHORITY"
   title       String
-  description String            @db.Text
+  description String       @db.Text
   authority   String?
-  officialUrl String?
-  documents   String[]
-  timeLimit   String?
+  contactInfo String?      @map("contact_info")
+  timeLimit   String?      @map("time_limit")
+  officialUrl String?      @map("official_url")
+  createdAt   DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("legal_remedies")
 }
 
-model Translation {
-  id          String       @id @default(cuid())
-  sectionId   String
-  section     LegalSection @relation(fields: [sectionId], references: [id])
-  language    String       // ISO 639-1 code: "hi", "mr", "ta", "te", "kn", "bn"
-  fieldName   String       // "simplifiedText" | "title"
-  content     String       @db.Text
-  verified    Boolean      @default(false)
-  createdAt   DateTime     @default(now())
+// ----------------------------------------------------------------------------
+// 3. AI & Vector Search (pgvector)
+// ----------------------------------------------------------------------------
 
-  @@unique([sectionId, language, fieldName])
+model LegalChunk {
+  id          String                      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sectionId   String?                     @map("section_id") @db.Uuid
+  section     LegalSection?               @relation(fields: [sectionId], references: [id], onDelete: Cascade)
+  content     String                      @db.Text
+  chunkNumber Int                         @default(1) @map("chunk_number")
+  language    String?                     @default("en")
+  sourceUrl   String?                     @map("source_url")
+  embedding   Unsupported("vector(384)")?
+  createdAt   DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt   DateTime                    @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@unique([sectionId, chunkNumber, language])
+  @@map("legal_chunks")
 }
 
-model Amendment {
-  id            String   @id @default(cuid())
-  actId         String
-  act           LegalAct @relation(fields: [actId], references: [id])
-  amendedBy     String
-  year          Int
-  description   String   @db.Text
-  effectiveDate DateTime
-  createdAt     DateTime @default(now())
+// ----------------------------------------------------------------------------
+// 4. Application Persistence (Users & Chat Sessions)
+// ----------------------------------------------------------------------------
+
+model User {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email         String?        @unique
+  phone         String?        @unique
+  password      String?
+  name          String?
+  state         String?
+  language      String         @default("en")
+  role          String         @default("USER") // "USER" | "ADMIN" | "PARALEGAL"
+  createdAt     DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt     DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  conversations Conversation[]
+
+  @@map("users")
 }
 
 model Conversation {
-  id        String    @id @default(cuid())
-  sessionId String    @unique
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  sessionId String    @unique @map("session_id")
+  userId    String?   @map("user_id") @db.Uuid
+  user      User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
   language  String    @default("en")
   messages  Message[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@map("conversations")
 }
 
 model Message {
-  id             String       @id @default(cuid())
-  conversationId String
-  conversation   Conversation @relation(fields: [conversationId], references: [id])
-  role           String       // "user" | "assistant"
+  id             String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  conversationId String       @map("conversation_id") @db.Uuid
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role           String       // "user" | "assistant" | "system"
   content        String       @db.Text
   language       String?
   metadata       Json?
-  createdAt      DateTime     @default(now())
-}
+  createdAt      DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt      DateTime     @updatedAt @map("updated_at") @db.Timestamptz(6)
 
-model User {
-  id        String   @id @default(cuid())
-  email     String?  @unique
-  phone     String?  @unique
-  password  String?
-  name      String?
-  state     String?
-  language  String   @default("en")
-  role      String   @default("USER") // "USER" | "ADMIN"
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  @@map("messages")
 }
