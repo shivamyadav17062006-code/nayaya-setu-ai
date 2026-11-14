@@ -1,58 +1,82 @@
 import apiClient from "./client";
-const BENEFICIARY_MAP = {
-  general: "GENERAL",
-  sc_st: "SC_ST",
-  obc: "GENERAL",
-  woman: "WOMEN",
-  senior_citizen: "SENIOR_CITIZEN",
-  disabled: "DISABILITY",
-  worker: "INDUSTRIAL_WORKMAN",
-  bpl: "GENERAL",
-  minor: "CHILD"
-};
-const SITUATION_MAP = {
-  labour: "LABOUR",
-  wages: "LABOUR",
-  domestic_violence: "WOMEN",
-  family: "WOMEN",
-  consumer: "CONSUMER",
-  criminal: "CRIMINAL",
-  property: "PROPERTY",
-  land: "PROPERTY",
-  other: "GENERAL"
-};
-function toBackendRequest(input) {
-  return {
-    income: input.annualIncome,
-    state: input.state,
-    category: SITUATION_MAP[input.situation] ?? "GENERAL",
-    beneficiaryType: BENEFICIARY_MAP[input.category] ?? "GENERAL",
-    age: input.age
-  };
+
+function getSessionId() {
+  if (typeof window === "undefined") return "guest-session";
+  let sessionId = localStorage.getItem("nyayasaathi_session_id");
+  if (!sessionId) {
+    sessionId = "sess_" + Math.random().toString(36).substring(2, 11) + "_" + Date.now();
+    localStorage.setItem("nyayasaathi_session_id", sessionId);
+  }
+  return sessionId;
 }
-function toFrontendResult(payload) {
-  const rawSchemes = payload.schemes ?? [];
-  const schemes = rawSchemes.map((scheme, index) => ({
-    id: scheme.id ?? `scheme-${index}`,
-    name: scheme.name,
-    description: scheme.description ?? "",
-    eligibilityCriteria: scheme.eligibilityCriteria ?? [],
-    benefits: scheme.benefits ?? [],
-    officialLink: scheme.officialLink ?? scheme.officialUrl ?? "https://nalsa.gov.in",
-    ministry: scheme.ministry ?? scheme.authority ?? "Government of India",
-    applicableStates: scheme.applicableStates ?? []
-  }));
-  const derivedSteps = rawSchemes.map((scheme) => scheme.applicationProcess).filter((step) => Boolean(step));
-  return {
-    legalAidEligible: payload.legalAidEligible ?? payload.eligible ?? false,
-    legalAidReason: payload.legalAidReason ?? payload.reason ?? "",
-    schemes,
-    nextSteps: payload.nextSteps ?? derivedSteps
-  };
-}
+
 export const eligibilityApi = {
   checkEligibility: async (input) => {
-    const { data } = await apiClient.post("/eligibility", toBackendRequest(input));
-    return toFrontendResult(data?.data ?? data);
-  }
+    const sessionId = getSessionId();
+    const payload = {
+      annualIncome: input.annualIncome !== undefined && input.annualIncome !== "" ? Number(input.annualIncome) : null,
+      income: input.annualIncome !== undefined && input.annualIncome !== "" ? Number(input.annualIncome) : null,
+      state: input.state || "Delhi",
+      courtLevel: input.courtLevel || "SUBORDINATE_COURT",
+      category: input.category || "GENERAL",
+      beneficiaryType: input.category || "GENERAL",
+      circumstances: input.circumstances || (input.situation ? [input.situation] : []),
+      age: input.age !== undefined && input.age !== "" ? Number(input.age) : null,
+      gender: input.gender || null,
+      situation: input.situation || null,
+      userConsent: Boolean(input.userConsent),
+      sessionId,
+    };
+
+    const { data } = await apiClient.post("/eligibility", payload, {
+      headers: { "x-session-id": sessionId },
+    });
+
+    const res = data?.data ?? data;
+    return {
+      status: res.status || (res.eligible ? "POTENTIALLY_ELIGIBLE" : "POTENTIALLY_NOT_ELIGIBLE"),
+      legalAidEligible: res.status === "POTENTIALLY_ELIGIBLE" || Boolean(res.eligible),
+      eligible: res.status === "POTENTIALLY_ELIGIBLE" || Boolean(res.eligible),
+      isStatutoryExempt: Boolean(res.isStatutoryExempt),
+      statutoryClause: res.statutoryClause || null,
+      explanation: res.explanation || res.reason || "",
+      legalAidReason: res.explanation || res.reason || "",
+      criteriaBreakdown: res.criteriaBreakdown || {},
+      schemes: res.schemes || [],
+      recommendedProviders: res.recommendedProviders || [],
+      disclaimer: res.disclaimer || "",
+      helpline: res.helpline || "15100",
+      referralLink: res.referralLink || "https://nalsa.gov.in",
+      nextSteps: res.schemes?.map((s) => s.applicationProcess).filter(Boolean) || [
+        "Visit your District Court and approach the DLSA Front Office.",
+        "Carry copies of your ID proof and relevant legal papers.",
+        "Alternatively, dial toll-free 15100 to request panel lawyer allocation.",
+      ],
+    };
+  },
+
+  getIncomeLimits: async (state) => {
+    try {
+      const { data } = await apiClient.get("/eligibility/income-limits", {
+        params: state ? { state } : {},
+      });
+      return data?.data || [];
+    } catch {
+      return [];
+    }
+  },
+
+  getSavedAssessments: async () => {
+    const sessionId = getSessionId();
+    try {
+      const { data } = await apiClient.get("/eligibility/assessments", {
+        headers: { "x-session-id": sessionId },
+      });
+      return data?.data || [];
+    } catch {
+      return [];
+    }
+  },
 };
+
+export default eligibilityApi;

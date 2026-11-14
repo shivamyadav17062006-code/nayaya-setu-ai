@@ -177,24 +177,72 @@ model ComplaintStep {
 }
 
 model LegalAidProvider {
-  id             String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name           String
-  type           String    @map("provider_type") // "NALSA" | "SLSA" | "DLSA" | "TLSC" | "NGO" | "OTHER"
-  state          String?
-  district       String?
-  address        String?
-  phone          String?
-  email          String?
-  website        String?
-  eligibility    String?   @map("eligibility_information") @db.Text
-  services       String[]  @default([])
-  isActive       Boolean   @default(true) @map("is_active")
-  verified       Boolean   @default(false)
-  lastVerifiedAt DateTime? @map("last_verified_at") @db.Timestamptz(6)
-  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt      DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name               String
+  type               String    @map("provider_type") // "NALSA" | "SLSA" | "DLSA" | "TLSC" | "SCLSC" | "HCLSC"
+  state              String?
+  district           String?
+  address            String?
+  phone              String?
+  helpline           String?
+  email              String?
+  website            String?
+  officialSource     String?   @map("official_source")
+  eligibility        String?   @map("eligibility_information") @db.Text
+  services           String[]  @default([])
+  latitude           Float?
+  longitude          Float?
+  isActive           Boolean   @default(true) @map("is_active")
+  verified           Boolean   @default(true)
+  verificationStatus String?   @default("VERIFIED") @map("verification_status")
+  lastVerifiedAt     DateTime? @map("last_verified_at") @db.Timestamptz(6)
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
 
   @@map("legal_aid_providers")
+}
+
+model LegalAidIncomeLimit {
+  id                     String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  state                  String
+  courtLevel             String    @default("SUBORDINATE_COURT") @map("court_level")
+  annualIncomeLimit      Int       @map("annual_income_limit")
+  currency               String    @default("INR")
+  applicableNotification String?   @map("applicable_notification")
+  officialSource         String?   @map("official_source")
+  effectiveDate          String?   @map("effective_date")
+  lastVerifiedAt         DateTime? @default(now()) @map("last_verified_at") @db.Timestamptz(6)
+  verificationStatus     String?   @default("VERIFIED") @map("verification_status")
+  createdAt              DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt              DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([state])
+  @@index([courtLevel])
+  @@map("legal_aid_income_limits")
+}
+
+model LegalAidAssessment {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String?   @map("user_id") @db.Uuid
+  sessionId          String?   @map("session_id")
+  status             String
+  category           String?
+  state              String?
+  courtLevel         String?   @map("court_level")
+  annualIncome       Int?      @map("annual_income")
+  isStatutoryExempt  Boolean   @default(false) @map("is_statutory_exempt")
+  statutoryClause    String?   @map("statutory_clause")
+  explanation        String    @db.Text
+  criteriaBreakdown  Json?     @default("{}") @map("criteria_breakdown")
+  disclaimer         String    @db.Text
+  userConsent        Boolean   @default(false) @map("user_consent")
+  createdAt          DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime  @updatedAt @map("updated_at") @db.Timestamptz(6)
+  user               User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([sessionId])
+  @@map("legal_aid_assessments")
 }
 
 model LegalRemedy {
@@ -251,6 +299,7 @@ model User {
   updatedAt     DateTime               @updatedAt @map("updated_at") @db.Timestamptz(6)
   conversations Conversation[]
   workflowProgress UserWorkflowProgress[]
+  legalAidAssessments LegalAidAssessment[]
 
   @@map("users")
 }

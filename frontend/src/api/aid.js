@@ -1,6 +1,7 @@
 import apiClient from "./client";
+
 export const aidApi = {
-  getProviders: async (params) => {
+  getProviders: async (params = {}) => {
     try {
       const { data } = await apiClient.get("/aid", { params });
       if (Array.isArray(data)) return data;
@@ -10,16 +11,26 @@ export const aidApi = {
       return [];
     }
   },
+
   getProvider: async (id) => {
     const { data } = await apiClient.get(`/aid/${id}`);
     return data?.data || data;
   },
+
   checkNalsaEligibility: async (params) => {
     const { data } = await apiClient.post("/aid/nalsa-eligibility", params);
-    return data;
+    return data?.data || data;
   },
+
   getDistricts: async (state) => {
-    const { data } = await apiClient.get(`/aid/districts/${state}`);
-    return data?.data || [];
-  }
+    if (!state) return [];
+    try {
+      const { data } = await apiClient.get(`/aid/districts/${encodeURIComponent(state)}`);
+      return data?.data || [];
+    } catch {
+      return [];
+    }
+  },
 };
+
+export default aidApi;
