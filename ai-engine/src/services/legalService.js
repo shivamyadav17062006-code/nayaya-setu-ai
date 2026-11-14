@@ -229,6 +229,24 @@ function extractTokens(str = '') {
   );
 }
 
+/**
+ * Detects Indian State or Union Territory mentioned in query text
+ */
+export function detectJurisdictionState(query = '') {
+  const q = (query || '').toLowerCase();
+  if (/\b(maharashtra|mumbai|pune|nagpur|thane|nashik)\b/.test(q)) return 'MAHARASHTRA';
+  if (/\b(delhi|new delhi|ncr|dilli)\b/.test(q)) return 'DELHI';
+  if (/\b(karnataka|bengaluru|bangalore|mysuru|mysore|sakala)\b/.test(q)) return 'KARNATAKA';
+  if (/\b(tamil nadu|tamilnadu|chennai|madras)\b/.test(q)) return 'TAMIL NADU';
+  if (/\b(uttar pradesh|noida|lucknow|kanpur)\b/.test(q)) return 'UTTAR PRADESH';
+  if (/\b(west bengal|bengal|kolkata|calcutta)\b/.test(q)) return 'WEST BENGAL';
+  if (/\b(rajasthan|jaipur|jodhpur)\b/.test(q)) return 'RAJASTHAN';
+  if (/\b(gujarat|ahmedabad|gandhinagar|surat)\b/.test(q)) return 'GUJARAT';
+  if (/\b(kerala|cochin|kochi|thiruvananthapuram)\b/.test(q)) return 'KERALA';
+  if (/\b(telangana|hyderabad)\b/.test(q)) return 'TELANGANA';
+  return null;
+}
+
 class LegalService {
   constructor() {
     this.supabase = null;
@@ -332,21 +350,28 @@ class LegalService {
         });
 
         if (!error && Array.isArray(data) && data.length > 0) {
-          const dbRecords = data.map((item) => ({
-            act_id: item.act_id || null,
-            act: item.act_title,
-            year: item.act_year || null,
-            section: item.section_number,
-            title: item.section_title || item.section_number,
-            category: item.categories || intent,
-            jurisdiction: 'CENTRAL',
-            text: item.original_text || item.content || item.chunk_text,
-            simplified: item.simplified_text || item.content || item.chunk_text,
-            remedy: 'Contact local DLSA or call NALSA 15100.',
-            source_url: item.act_source_url || item.source_url || 'https://www.indiacode.nic.in',
-            verification_status: 'VERIFIED',
-            vectorSimilarity: item.similarity ?? 0.5,
-          }));
+          const dbRecords = data.map((item) => {
+            const isState = item.act_jurisdiction === 'STATE';
+            const stateName = item.act_state || null;
+            return {
+              act_id: item.act_id || null,
+              act: item.act_title,
+              year: item.act_year || null,
+              section: item.section_number,
+              title: item.section_title || item.section_number,
+              category: item.categories || intent,
+              jurisdiction: item.act_jurisdiction || 'CENTRAL',
+              state: stateName,
+              text: item.original_text || item.content || item.chunk_text,
+              simplified: item.simplified_text || item.content || item.chunk_text,
+              remedy: isState && stateName
+                ? `Contact ${stateName} DLSA, Labour Commissioner or call NALSA 15100.`
+                : 'Contact local DLSA or call NALSA 15100.',
+              source_url: item.act_source_url || item.source_url || 'https://www.indiacode.nic.in',
+              verification_status: 'VERIFIED',
+              vectorSimilarity: item.similarity ?? 0.5,
+            };
+          });
 
           candidateRecords = exactConstitutionalMatch ? [exactConstitutionalMatch, ...dbRecords] : dbRecords;
         }
@@ -367,25 +392,36 @@ class LegalService {
       }));
     }
 
-    // 4. Apply Metadata Filters (Jurisdiction, Status, Category)
+    // 4. Apply Metadata Filters & Cross-State Conflict Resolution
+    const targetState = filters.state || detectJurisdictionState(query);
+
     let filtered = candidateRecords;
     if (filters.jurisdiction) {
       filtered = filtered.filter(
         (r) => !r.jurisdiction || r.jurisdiction.toUpperCase() === filters.jurisdiction.toUpperCase()
       );
     }
+
+    // Cross-state isolation: If a specific state is targeted, include Central acts + that state's acts,
+    // but filter out other states' enactments to prevent legal confusion across jurisdictions.
+    if (targetState) {
+      filtered = filtered.filter(
+        (r) => !r.state || r.state.toUpperCase() === targetState.toUpperCase()
+      );
+    }
+
     if (filters.act) {
       filtered = filtered.filter((r) =>
         r.act.toLowerCase().includes(filters.act.toLowerCase())
       );
     }
 
-    // 5. Hybrid Relevance Ranking (Vector + Lexical Overlap + Intent Boost)
+    // 5. Hybrid Relevance Ranking (Vector + Lexical Overlap + Intent Boost + State Boost)
     const queryTokens = extractTokens(query);
 
     const scored = filtered.map((item) => {
       const haystack = extractTokens(
-        `${item.act} ${item.section} ${item.title} ${item.text} ${item.simplified}`
+        `${item.act} ${item.section} ${item.title} ${item.text} ${item.simplified} ${item.state || ''}`
       );
       let lexicalHits = 0;
       for (const tok of queryTokens) {
@@ -406,12 +442,16 @@ class LegalService {
       );
       const intentBoost = intentMatch ? 0.25 : 0.0;
 
+      // State boost: Boost laws specific to the identified state
+      const stateMatch = targetState && item.state && item.state.toUpperCase() === targetState.toUpperCase();
+      const stateBoost = stateMatch ? 0.25 : 0.0;
+
       // Penalize generic constitutional chunks when a specific statutory intent is being resolved
       const isGeneralConstitutional = item.act && item.act.includes('Constitution') && !item.exactMatch;
       const statutoryDiscount = (isGeneralConstitutional && normInt && normInt !== 'constitutional' && normInt !== 'general') ? 0.15 : 0.0;
 
-      // Composite hybrid score: 50% vector + 35% lexical + intent boost - statutory discount (exact matches get 1.0)
-      const compositeScore = item.exactMatch ? 1.0 : (item.vectorSimilarity * 0.5) + (lexicalScore * 0.35) + intentBoost - statutoryDiscount;
+      // Composite hybrid score: 50% vector + 35% lexical + intent boost + state boost - statutory discount
+      const compositeScore = item.exactMatch ? 1.0 : (item.vectorSimilarity * 0.5) + (lexicalScore * 0.35) + intentBoost + stateBoost - statutoryDiscount;
 
       return {
         ...item,
@@ -427,7 +467,7 @@ class LegalService {
     const seenSections = new Set();
     const deduplicated = [];
     for (const item of scored) {
-      const key = `${item.act}-${item.section}`.toLowerCase();
+      const key = `${item.state || 'central'}-${item.act}-${item.section}`.toLowerCase();
       if (!seenSections.has(key)) {
         seenSections.add(key);
         deduplicated.push(item);

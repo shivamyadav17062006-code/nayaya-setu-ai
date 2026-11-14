@@ -1,0 +1,613 @@
+{
+  "version": "1.0.0",
+  "lastAuditedAt": "2026-11-14T21:48:51.265Z",
+  "auditSummary": {
+    "totalJurisdictions": 36,
+    "totalStates": 28,
+    "totalUnionTerritories": 8,
+    "verifiedAndIngestedJurisdictions": 3,
+    "cataloguedPendingIngestion": 33,
+    "officialPortalsVerificationRate": "100% (36/36 official portals mapped)",
+    "slsaIncomeRulesVerificationRate": "100% (36/36 SLSA thresholds verified)",
+    "totalStateActsIngested": 6,
+    "totalStateRulesIngested": 3,
+    "totalStateSectionsIngested": 21
+  },
+  "jurisdictions": [
+    {
+      "code": "AP",
+      "name": "Andhra Pradesh",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Shops & Establishments",
+        "Tenancy & Land Reforms",
+        "Public Services Delivery",
+        "Agricultural Tenancy"
+      ]
+    },
+    {
+      "code": "AR",
+      "name": "Arunachal Pradesh",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 100000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Customary Rights",
+        "Forest & Land Rights",
+        "Public Services Delivery"
+      ]
+    },
+    {
+      "code": "AS",
+      "name": "Assam",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Tea Plantation Labour",
+        "Shops & Establishments",
+        "Right to Public Services",
+        "Land Revenue"
+      ]
+    },
+    {
+      "code": "BR",
+      "name": "Bihar",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Right to Public Services (RTPS)",
+        "Shops & Establishments",
+        "Land Tenancy",
+        "Moneylending Regulation"
+      ]
+    },
+    {
+      "code": "CG",
+      "name": "Chhattisgarh",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Panchayat & Forest Rights (PESA)",
+        "Lok Seva Guarantee",
+        "Labour Welfare",
+        "Shops & Establishments"
+      ]
+    },
+    {
+      "code": "GA",
+      "name": "Goa",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Portuguese Civil Code (Uniform Civil Code)",
+        "Shops & Establishments",
+        "Mundkar & Tenancy Laws"
+      ]
+    },
+    {
+      "code": "GJ",
+      "name": "Gujarat",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Shops & Establishments (Regulation of Employment)",
+        "Industrial Disputes",
+        "Right to Services",
+        "Tenancy Laws"
+      ]
+    },
+    {
+      "code": "HR",
+      "name": "Haryana",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Right to Service Act",
+        "Shops & Commercial Establishments",
+        "Rent Control (Urban)",
+        "Labour Welfare"
+      ]
+    },
+    {
+      "code": "HP",
+      "name": "Himachal Pradesh",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Tenancy & Land Reforms (Section 118 restrictions)",
+        "Public Services Guarantee",
+        "Shops & Establishments"
+      ]
+    },
+    {
+      "code": "JH",
+      "name": "Jharkhand",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Chhota Nagpur Tenancy (CNT) Act",
+        "Santhal Pargana Tenancy (SPT) Act",
+        "Right to Services",
+        "Labour Welfare"
+      ]
+    },
+    {
+      "code": "KA",
+      "name": "Karnataka",
+      "type": "STATE",
+      "coverageStatus": "VERIFIED_INGESTED",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 3,
+      "ingestedSectionsCount": 6,
+      "keyStatutoryDomains": [
+        "Karnataka Shops and Commercial Establishments Act",
+        "Sakala (Karnataka Guarantee of Services to Citizens Act)",
+        "Rent Act 1999",
+        "Land Reforms Act"
+      ]
+    },
+    {
+      "code": "KL",
+      "name": "Kerala",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Kerala Shops and Commercial Establishments Act",
+        "Right to Service Act 2012",
+        "Buildings (Lease and Rent Control) Act",
+        "Headload Workers Act"
+      ]
+    },
+    {
+      "code": "MP",
+      "name": "Madhya Pradesh",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Lok Seva Guarantee Act 2010",
+        "Shops and Establishments Act",
+        "Accommodation Control Act",
+        "Gram Swaraj Adhiniyam"
+      ]
+    },
+    {
+      "code": "MH",
+      "name": "Maharashtra",
+      "type": "STATE",
+      "coverageStatus": "VERIFIED_INGESTED",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 3,
+      "ingestedSectionsCount": 8,
+      "keyStatutoryDomains": [
+        "Maharashtra Shops & Establishments Act 2017",
+        "Maharashtra Rent Control Act 1999",
+        "Maharashtra Right to Public Services Act 2015",
+        "Mathadi Act"
+      ]
+    },
+    {
+      "code": "MN",
+      "name": "Manipur",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 100000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Hill Areas District Councils",
+        "Right to Public Services",
+        "Customary Property Rights"
+      ]
+    },
+    {
+      "code": "ML",
+      "name": "Meghalaya",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 100000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Sixth Schedule Autonomous District Councils",
+        "Right to Public Services",
+        "Land Transfer Act"
+      ]
+    },
+    {
+      "code": "MZ",
+      "name": "Mizoram",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 100000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Article 371G Special Provisions",
+        "Customary Law",
+        "Right to Public Services"
+      ]
+    },
+    {
+      "code": "NL",
+      "name": "Nagaland",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 100000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Article 371A Naga Customary Law",
+        "Village Council Act",
+        "Public Services"
+      ]
+    },
+    {
+      "code": "OD",
+      "name": "Odisha",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Right to Public Services Act 2012",
+        "Shops and Commercial Establishments",
+        "House Rent Control Act",
+        "Tribal Land Protection"
+      ]
+    },
+    {
+      "code": "PB",
+      "name": "Punjab",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Punjab Right to Service Act 2011",
+        "Shops and Commercial Establishments Act",
+        "Rent Act 1995",
+        "Agricultural Produce Markets"
+      ]
+    },
+    {
+      "code": "RJ",
+      "name": "Rajasthan",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Rajasthan Guaranteed Delivery of Public Services Act 2011",
+        "Shops and Commercial Establishments Act",
+        "Rent Control Act 2001",
+        "Gig Workers Welfare Act 2023"
+      ]
+    },
+    {
+      "code": "SK",
+      "name": "Sikkim",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Article 371F Special Constitutional Protections",
+        "Old Laws Protection",
+        "Services Guarantee"
+      ]
+    },
+    {
+      "code": "TN",
+      "name": "Tamil Nadu",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Tamil Nadu Shops and Establishments Act 1947",
+        "Tamil Nadu Regulation of Rights and Responsibilities of Landlords and Tenants Act 2017",
+        "Labour Welfare"
+      ]
+    },
+    {
+      "code": "TS",
+      "name": "Telangana",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Telangana Shops and Establishments Act",
+        "Right to Public Services",
+        "Buildings (Lease, Rent and Eviction) Control",
+        "Rythu Bandhu Regulations"
+      ]
+    },
+    {
+      "code": "TR",
+      "name": "Tripura",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Tripura Tribal Areas Autonomous District Council (TTAADC)",
+        "Right to Public Services",
+        "Shops & Establishments"
+      ]
+    },
+    {
+      "code": "UP",
+      "name": "Uttar Pradesh",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 100000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "UP Dookan Aur Vanijya Adhishthan Adhiniyam 1962 (Shops & Establishments)",
+        "UP Urban Buildings (Regulation of Letting, Rent and Eviction) Act 1972",
+        "UP Janhit Guarantee Act 2011"
+      ]
+    },
+    {
+      "code": "UK",
+      "name": "Uttarakhand",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Uttarakhand Right to Service Act 2011",
+        "Uniform Civil Code (UCC) Act 2024",
+        "Shops & Establishments",
+        "Land Laws"
+      ]
+    },
+    {
+      "code": "WB",
+      "name": "West Bengal",
+      "type": "STATE",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "West Bengal Shops and Establishments Act 1963",
+        "West Bengal Premises Tenancy Act 1997",
+        "West Bengal Right to Public Services Act 2013",
+        "Bargadar (Sharecropper) Rights"
+      ]
+    },
+    {
+      "code": "AN",
+      "name": "Andaman and Nicobar Islands",
+      "type": "UT_WITHOUT_ASSEMBLY",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Tribal Protection Regulations",
+        "Port & Island Labour",
+        "Services Guarantee"
+      ]
+    },
+    {
+      "code": "CH",
+      "name": "Chandigarh",
+      "type": "UT_WITHOUT_ASSEMBLY",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Punjab Shops & Commercial Establishments Act (as extended)",
+        "East Punjab Urban Rent Restriction Act",
+        "Services Delivery"
+      ]
+    },
+    {
+      "code": "DH",
+      "name": "Dadra and Nagar Haveli and Daman and Diu",
+      "type": "UT_WITHOUT_ASSEMBLY",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Industrial Labour Regulations",
+        "Shops & Establishments",
+        "Land Revenue Regulations"
+      ]
+    },
+    {
+      "code": "DL",
+      "name": "Delhi (National Capital Territory)",
+      "type": "UT_WITH_ASSEMBLY",
+      "coverageStatus": "VERIFIED_INGESTED",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 3,
+      "ingestedSectionsCount": 7,
+      "keyStatutoryDomains": [
+        "Delhi Shops and Establishments Act 1954",
+        "Delhi Right to Citizen Services Act 2011",
+        "Delhi Rent Control Act 1958",
+        "Delhi Minimum Wages Regulations"
+      ]
+    },
+    {
+      "code": "JK",
+      "name": "Jammu and Kashmir",
+      "type": "UT_WITH_ASSEMBLY",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "J&K Reorganisation Act 2019",
+        "J&K Shops and Establishments Act",
+        "Public Services Guarantee Act 2011",
+        "Land Revenue Laws"
+      ]
+    },
+    {
+      "code": "LA",
+      "name": "Ladakh",
+      "type": "UT_WITHOUT_ASSEMBLY",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Autonomous Hill Development Councils Act (LAHDC)",
+        "Land & Employment Protections",
+        "Citizen Services"
+      ]
+    },
+    {
+      "code": "LD",
+      "name": "Lakshadweep",
+      "type": "UT_WITHOUT_ASSEMBLY",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 150000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Island Tenancy & Land Regulations",
+        "Marine & Fisheries Labour Regulations",
+        "Citizen Services"
+      ]
+    },
+    {
+      "code": "PY",
+      "name": "Puducherry",
+      "type": "UT_WITH_ASSEMBLY",
+      "coverageStatus": "CATALOGUED_PENDING_INGESTION",
+      "portalVerified": true,
+      "slsaRulesVerified": true,
+      "slsaIncomeCeiling": 300000,
+      "ingestedDocumentsCount": 0,
+      "ingestedSectionsCount": 0,
+      "keyStatutoryDomains": [
+        "Puducherry Shops and Establishments Act",
+        "Puducherry Buildings (Lease and Rent Control) Act",
+        "French Civil Code remnants"
+      ]
+    }
+  ]
+}

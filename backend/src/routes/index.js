@@ -7,6 +7,7 @@ import eligibilityRouter from './eligibility.js';
 import authRouter from './auth.js';
 import constitutionRouter from './constitution.js';
 import legislationRouter from './legislation.js';
+import stateLegislationRouter from './stateLegislation.js';
 
 export const router = Router();
 
@@ -19,6 +20,7 @@ router.use('/eligibility', eligibilityRouter);
 router.use('/auth', authRouter);
 router.use('/constitution', constitutionRouter);
 router.use('/legislation', legislationRouter);
+router.use('/states', stateLegislationRouter);
 
 // API discovery & manifest endpoint
 router.get('/', (_req, res) => {
@@ -66,6 +68,12 @@ router.get('/', (_req, res) => {
       },
       eligibility: {
         check: 'POST /api/eligibility',
+      },
+      states: {
+        list: 'GET /api/states?type=&coverage=&q=',
+        byCode: 'GET /api/states/:stateCode',
+        acts: 'GET /api/states/:stateCode/acts?documentType=',
+        coverageTracker: 'GET /api/states/coverage/tracker',
       },
     },
   });
