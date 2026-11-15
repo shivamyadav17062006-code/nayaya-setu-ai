@@ -4,6 +4,7 @@
  */
 
 export const Intent = {
+  GREETING: 'GREETING',
   LABOUR: 'LABOUR',
   WOMEN_RIGHTS: 'WOMEN_RIGHTS',
   WORKPLACE_HARASSMENT: 'WORKPLACE_HARASSMENT',
@@ -23,6 +24,55 @@ export const GoalType = {
   COMPLAINT_PROCEDURE: 'COMPLAINT_PROCEDURE',
   DOCUMENT_EXPLANATION: 'DOCUMENT_EXPLANATION',
 };
+
+/**
+ * Checks if a user message is a conversational greeting or intro request
+ */
+export function isGreeting(text = '') {
+  if (!text || typeof text !== 'string') return false;
+  const trimmed = text.trim().toLowerCase();
+
+  // Single word greetings and abbreviations
+  if (/^(hi|hello|hey|heya|hlo|hii|hiii|hiya|hola|bonjour|namaste|namaskar|pranam|pranaam|salaam|sasriyakal|adaab|vanakkam|namaskara|nomoshkar)[.!?\s]*$/i.test(trimmed)) {
+    return true;
+  }
+
+  // Indic scripts greetings
+  if (/^(नमस्ते|नमस्कार|प्रणाम|हेलो|हाय|केम छो|வணக்கம்|నమస్కారం|নমস্কার|ਸਤਿ ਸ੍ਰੀ ਅਕਾਲ)[.!?\s]*$/i.test(trimmed)) {
+    return true;
+  }
+
+  // Greetings with polite words: "hello there", "hi team", "hello sir", "namaste ji"
+  if (/^(hi|hello|hey|namaste|namaskar)\s+(there|sir|madam|team|ji|bot|assistant|nyayasaathi)?[.!?\s]*$/i.test(trimmed)) {
+    return true;
+  }
+
+  // Conversational questions asking identity, role, or general help without legal specifics
+  const isIntroQuestion =
+    /who are you/i.test(trimmed) ||
+    /what can you do/i.test(trimmed) ||
+    /how can you help/i.test(trimmed) ||
+    /what is nyayasaathi/i.test(trimmed) ||
+    /help me/i.test(trimmed) ||
+    /i need help/i.test(trimmed) ||
+    /i need advice/i.test(trimmed) ||
+    /i need legal advice/i.test(trimmed) ||
+    /legal advice/i.test(trimmed) ||
+    /aap kaun hai/i.test(trimmed) ||
+    /tum kaun ho/i.test(trimmed) ||
+    /kya madad/i.test(trimmed) ||
+    /good\s+(morning|afternoon|evening|day)/i.test(trimmed);
+
+  // But make sure it doesn't contain specific legal domain keywords like salary, domestic violence, police, fir, etc.
+  const hasSpecificCaseDetails =
+    /\b(salary|wage|employer|fired|posh|domestic|violence|beating|divorce|dowry|fir|arrest|bail|police|tenant|rent|eviction|refund|cheated|fraud|पगार|वेतन)\b/i.test(trimmed);
+
+  if (isIntroQuestion && !hasSpecificCaseDetails) {
+    return true;
+  }
+
+  return false;
+}
 
 const DOMAIN_RULES = [
   {
@@ -145,6 +195,16 @@ export function classifyIntent(query = '') {
       goal: GoalType.GENERAL_EXPLANATION,
       confidence: 0.5,
       reasoning: 'Default fallback',
+    };
+  }
+
+  // Check for conversational greetings or introductory requests
+  if (isGreeting(query)) {
+    return {
+      intent: Intent.GREETING,
+      goal: GoalType.GENERAL_EXPLANATION,
+      confidence: 0.99,
+      reasoning: 'Conversational greeting or legal assistant intake intro',
     };
   }
 

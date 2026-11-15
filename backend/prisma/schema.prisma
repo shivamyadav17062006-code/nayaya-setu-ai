@@ -40,6 +40,18 @@ model LegalAct {
   reviewerId             String?        @map("reviewer_id")
   reviewNotes            String?        @map("review_notes")
   lastReviewedAt         DateTime?      @map("last_reviewed_at") @db.Timestamptz(6)
+  assentDate             DateTime?      @map("assent_date") @db.Date
+  gazetteNumber          String?        @map("gazette_number")
+  gazetteDate            DateTime?      @map("gazette_date") @db.Date
+  commencementDate       DateTime?      @map("commencement_date") @db.Date
+  repealDate             DateTime?      @map("repeal_date") @db.Date
+  repealedByActId        String?        @map("repealed_by_act_id") @db.Uuid
+  repealedByAct          LegalAct?      @relation("ActRepeals", fields: [repealedByActId], references: [id], onDelete: SetNull)
+  repealedActs           LegalAct[]     @relation("ActRepeals")
+  savingsClauseRef       String?        @map("savings_clause_ref")
+  isPartiallyCommenced   Boolean?       @default(false) @map("is_partially_commenced")
+  commencedSections      String[]       @default([]) @map("commenced_sections")
+  stagedSections         String[]       @default([]) @map("staged_sections")
   createdAt              DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt              DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
   sections               LegalSection[]
@@ -59,6 +71,10 @@ model LegalSection {
   verificationStatus String?          @default("PUBLISHED") @map("verification_status")
   reviewerId     String?              @map("reviewer_id")
   reviewNotes    String?              @map("review_notes")
+  status         String?              @default("IN_FORCE")
+  amendmentActRef String?             @map("amendment_act_ref")
+  savingsClauseNotes String?          @map("savings_clause_notes")
+  isOperative    Boolean?             @default(true) @map("is_operative")
   effectiveFrom  DateTime?            @map("effective_from") @db.Date
   effectiveTo    DateTime?            @map("effective_to") @db.Date
   createdAt      DateTime             @default(now()) @map("created_at") @db.Timestamptz(6)
@@ -274,6 +290,12 @@ model LegalChunk {
   chunkNumber Int                         @default(1) @map("chunk_number")
   language    String?                     @default("en")
   sourceUrl   String?                     @map("source_url")
+  legalStatus String?                     @default("IN_FORCE") @map("legal_status")
+  effectiveFrom DateTime?                 @map("effective_from") @db.Date
+  effectiveTo DateTime?                   @map("effective_to") @db.Date
+  jurisdiction String?                    @default("CENTRAL")
+  actTitle    String?                     @map("act_title")
+  sectionNumber String?                   @map("section_number")
   embedding   Unsupported("vector(384)")?
   createdAt   DateTime                    @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt   DateTime                    @updatedAt @map("updated_at") @db.Timestamptz(6)

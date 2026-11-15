@@ -10,6 +10,9 @@ export const authApi = {
     if (data?.data?.token) {
       localStorage.setItem('nyayasaathi_token', data.data.token);
       localStorage.setItem('nyayasaathi_user', JSON.stringify(data.data.user));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth-change', { detail: { user: data.data.user } }));
+      }
     }
     return data?.data;
   },
@@ -22,6 +25,9 @@ export const authApi = {
     if (data?.data?.token) {
       localStorage.setItem('nyayasaathi_token', data.data.token);
       localStorage.setItem('nyayasaathi_user', JSON.stringify(data.data.user));
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth-change', { detail: { user: data.data.user } }));
+      }
     }
     return data?.data;
   },
@@ -55,6 +61,18 @@ export const authApi = {
   },
 
   /**
+   * Update active user profile (name, state, language).
+   */
+  updateProfile: async (profileData) => {
+    const { data } = await apiClient.patch('/auth/profile', profileData);
+    if (data?.data?.user) {
+      localStorage.setItem('nyayasaathi_user', JSON.stringify(data.data.user));
+      return data.data.user;
+    }
+    return null;
+  },
+
+  /**
    * Log out active user and clear session tokens.
    */
   logout: async () => {
@@ -65,6 +83,9 @@ export const authApi = {
     } finally {
       localStorage.removeItem('nyayasaathi_token');
       localStorage.removeItem('nyayasaathi_user');
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('auth-change', { detail: { user: null } }));
+      }
     }
   },
 };

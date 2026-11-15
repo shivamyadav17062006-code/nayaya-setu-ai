@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   listWorkflows,
   getWorkflowByCategory,
+  getUserAllWorkflowProgress,
   getWorkflowProgress,
   updateWorkflowProgress,
   resetWorkflowProgress,
@@ -12,6 +13,9 @@ const router = Router();
 
 // List workflows (supports ?q=, ?category=, ?jurisdiction=)
 router.get('/', listWorkflows);
+
+// User-wide workflow progress (must be before :id)
+router.get('/user/all-progress', optionalAuth, getUserAllWorkflowProgress);
 
 // Workflow progress endpoints (scoped to authenticated user or session ID)
 router.get('/:id/progress', optionalAuth, getWorkflowProgress);

@@ -6,6 +6,7 @@ import {
   registerUser,
   loginUser,
   getCurrentUser,
+  updateProfile,
   logoutUser,
 } from '../controllers/authController.js';
 
@@ -18,5 +19,6 @@ router.post('/logout', logoutUser);
 
 // Protected user profile
 router.get('/me', authenticate, getCurrentUser);
+router.patch('/profile', authenticate, updateProfile);
 
 export default router;

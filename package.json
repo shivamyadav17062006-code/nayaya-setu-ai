@@ -29,6 +29,7 @@
     "docker:down": "docker-compose down"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "concurrently": "^8.2.2",
     "prisma": "^5.22.0"
   },

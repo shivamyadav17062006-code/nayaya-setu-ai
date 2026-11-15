@@ -6,6 +6,12 @@
 const TRUSTED_OFFICIAL_DOMAINS = [
   'indiacode.nic.in',
   'legislative.gov.in',
+  'egazette.gov.in',
+  'mha.gov.in',
+  'labour.gov.in',
+  'wcd.nic.in',
+  'consumeraffairs.nic.in',
+  'dopt.gov.in',
   'nalsa.gov.in',
   'shramsuvidha.gov.in',
   'edaakhil.nic.in',

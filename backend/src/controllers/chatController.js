@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import { prisma, isPrismaConfigured, prismaConfigStatus } from '../lib/prisma.js';
-import { queryAIEngine } from '../services/aiService.js';
+import { queryAIEngine, detectQueryLanguage } from '../services/aiService.js';
 import { createError } from '../middleware/errorHandler.js';
 
 // ---------------------------------------------------------------------------
@@ -13,6 +13,9 @@ export async function handleChat(req, res, next) {
     if (!message || typeof message !== 'string' || message.trim() === '') {
       return res.status(400).json({ success: false, error: 'Message is required.' });
     }
+
+    const detected = detectQueryLanguage(message);
+    const resolvedLanguage = detected.code !== 'en' ? detected.code : (language || 'en');
 
     const resolvedSessionId = sessionId || uuidv4();
     const authenticatedUserId = req.user?.id || req.user?.userId || null;
@@ -50,7 +53,7 @@ export async function handleChat(req, res, next) {
           if (authenticatedUserId && !conversation.userId) {
             conversation = await prisma.conversation.update({
               where: { id: conversation.id },
-              data: { userId: authenticatedUserId },
+              data: { userId: authenticatedUserId, language: resolvedLanguage },
               include: {
                 messages: {
                   orderBy: { createdAt: 'asc' },
@@ -63,7 +66,7 @@ export async function handleChat(req, res, next) {
           conversation = await prisma.conversation.create({
             data: {
               sessionId: resolvedSessionId,
-              language,
+              language: resolvedLanguage,
               userId: authenticatedUserId,
             },
             include: { messages: true },
@@ -78,7 +81,7 @@ export async function handleChat(req, res, next) {
             conversationId: conversation.id,
             role: 'user',
             content: message.trim(),
-            language,
+            language: resolvedLanguage,
           },
         });
 
@@ -105,7 +108,7 @@ export async function handleChat(req, res, next) {
     try {
       aiResponse = await queryAIEngine({
         query: message.trim(),
-        language,
+        language: resolvedLanguage,
         session_id: resolvedSessionId,
         history,
       });
@@ -134,8 +137,13 @@ export async function handleChat(req, res, next) {
             conversationId,
             role: 'assistant',
             content: aiResponse.answer,
-            language: aiResponse.language ?? language,
-            metadata: aiResponse.sources ? { sources: aiResponse.sources } : undefined,
+            language: aiResponse.language ?? resolvedLanguage,
+            metadata: {
+              sources: aiResponse.sources || [],
+              nextSteps: aiResponse.nextSteps || [],
+              actionUrl: aiResponse.actionUrl || null,
+              degraded: aiResponse.degraded || false,
+            },
           },
         });
         persisted = true;
@@ -159,7 +167,7 @@ export async function handleChat(req, res, next) {
         answer: aiResponse.answer,
         sessionId: resolvedSessionId,
         conversationId,
-        language: aiResponse.language ?? language,
+        language: aiResponse.language ?? resolvedLanguage,
         sources: aiResponse.sources || [],
         suggestedActions: suggestedActions || [],
         nextSteps: aiResponse.nextSteps || [],
@@ -186,15 +194,27 @@ export async function listConversations(req, res, next) {
     }
 
     const authenticatedUserId = req.user?.id || req.user?.userId || null;
-    const { sessionId } = req.query;
+    const { sessionId, sessionIds } = req.query;
 
     let where = {};
     if (authenticatedUserId) {
-      where = { userId: authenticatedUserId };
+      if (sessionIds) {
+        const idList = sessionIds.split(',').map((s) => s.trim()).filter(Boolean);
+        where = {
+          OR: [
+            { userId: authenticatedUserId },
+            { sessionId: { in: idList } },
+          ],
+        };
+      } else {
+        where = { userId: authenticatedUserId };
+      }
+    } else if (sessionIds) {
+      const idList = sessionIds.split(',').map((s) => s.trim()).filter(Boolean);
+      where = { sessionId: { in: idList } };
     } else if (sessionId) {
       where = { sessionId };
     } else {
-      // Unauthenticated client without sessionId cannot list private conversations
       return res.status(200).json({ success: true, data: [] });
     }
 
@@ -220,6 +240,44 @@ export async function listConversations(req, res, next) {
     }));
 
     res.status(200).json({ success: true, data });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// POST /api/chat/sync — Associate client session IDs with the authenticated user
+// ---------------------------------------------------------------------------
+export async function syncConversations(req, res, next) {
+  try {
+    if (!isPrismaConfigured) {
+      return res.status(200).json({ success: true, message: 'DB not configured' });
+    }
+
+    const authenticatedUserId = req.user?.id || req.user?.userId || null;
+    if (!authenticatedUserId) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Sign in required to claim conversations.' });
+    }
+
+    const { sessionIds = [] } = req.body || {};
+    if (!Array.isArray(sessionIds) || sessionIds.length === 0) {
+      return res.status(200).json({ success: true, claimedCount: 0 });
+    }
+
+    const result = await prisma.conversation.updateMany({
+      where: {
+        sessionId: { in: sessionIds },
+        userId: null,
+      },
+      data: {
+        userId: authenticatedUserId,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      claimedCount: result.count,
+    });
   } catch (err) {
     next(err);
   }
@@ -305,6 +363,15 @@ export async function getConversation(req, res, next) {
         error: 'Forbidden: You do not have permission to view this conversation.',
         code: 'FORBIDDEN_CONVERSATION_ACCESS',
       });
+    }
+
+    // Auto-claim: if unowned conversation is opened by an authenticated user, link it!
+    if (authenticatedUserId && !conversation.userId) {
+      await prisma.conversation.update({
+        where: { id: conversation.id },
+        data: { userId: authenticatedUserId },
+      });
+      conversation.userId = authenticatedUserId;
     }
 
     res.status(200).json({ success: true, data: conversation });

@@ -2,44 +2,44 @@ import { GoogleGenAI } from '@google/genai';
 import { config } from '../config.js';
 
 export const MOCK_RESPONSES = {
-  LABOUR: `**Your Rights:** As an employee in India, you have the right to receive your salary on time. Under the Payment of Wages Act, 1936, your employer is legally obligated to pay you within 7-10 days after the end of the wage period. Withholding wages without valid reason is illegal.
+  LABOUR: `**Your Rights:** As an employee in India, you have the right to receive your salary on time. Under the Payment of Wages Act, 1936 (the active operative statute) and the Code on Wages, 2019 (enacted modern framework), your employer is legally obligated to pay you within 7-10 days after the end of the wage period. Withholding wages without valid reason is illegal.
 
 **Relevant Law:**
-- **Payment of Wages Act, 1936, Section 5** — Wages must be paid before the 7th day (or 10th day for establishments with 1000+ workers) after the end of the wage period.
-- **Payment of Wages Act, 1936, Section 15** — Any employee whose wages are delayed or withheld can file a complaint before the Authority under this Act.
-- **Industrial Disputes Act, 1947, Section 33C** — Allows recovery of money due from an employer.
+- **Payment of Wages Act, 1936, Section 5** — Wages must be paid before the 7th day (or 10th day for establishments with 1000+ workers) after the end of the wage period. (Code on Wages 2019, Section 16 provides a 7-day standard across establishments).
+- **Payment of Wages Act, 1936, Section 15** — Any employee whose wages are delayed or withheld can file a formal claim before the Payment of Wages Authority for back-pay plus compensation up to 10 times the amount.
+- **Industrial Disputes Act, 1947, Section 33C** — Allows recovery of earned money due from an employer via recovery certificate executed as land revenue arrears.
 
 **What You Can Do:**
-1. Send a written demand to your employer (keep a copy).
-2. File a complaint with the **Labour Commissioner** in your district.
-3. File an application before the **Authority under the Payment of Wages Act** (usually the Labour Court).
-4. If your employer is not complying, file a complaint with the police under relevant IPC sections for criminal breach of trust.
+1. Send a written demand notice to your employer (keep proof of delivery).
+2. File a complaint with the **Labour Commissioner** in your district or via Shram Suvidha portal.
+3. File a formal application before the **Authority under the Payment of Wages Act** (Assistant Labour Commissioner).
+4. If your employer is deliberately misappropriating deducted wages or PF, file a complaint with the police under Section 316 of the Bharatiya Nyaya Sanhita, 2023 for criminal breach of trust (formerly IPC 405/406).
 
 **Where to Get Help:**
-- **NALSA Helpline: 15100** (free legal aid)
+- **NALSA Helpline: 15100** (24x7 free legal aid)
 - **Labour Commissioner Office** in your district
-- **Labour Court** in your jurisdiction
-- District Legal Services Authority (DLSA)`,
+- **Labour Court / Payment of Wages Authority** in your jurisdiction
+- **District Legal Services Authority (DLSA)** for a free panel lawyer`,
 
-  WOMEN_RIGHTS: `**Your Rights:** Indian law provides strong protections for women against domestic violence, sexual harassment, and gender-based discrimination.
+  WOMEN_RIGHTS: `**Your Rights:** Indian law provides robust statutory and constitutional protections for women against domestic violence, matrimonial cruelty, and sexual harassment.
 
 **Relevant Law:**
-- **Protection of Women from Domestic Violence Act, 2005, Section 12** — Any aggrieved woman can present an application to a Magistrate for relief including protection orders, residence orders, and monetary relief.
-- **Protection of Women from Domestic Violence Act, 2005, Section 18** — Courts can issue Protection Orders preventing the abuser from contacting or approaching you.
-- **Indian Penal Code, Section 498A** — Cruelty by husband or his relatives is punishable with up to 3 years imprisonment.
-- **Sexual Harassment of Women at Workplace Act, 2013** — Protects women from harassment at their workplace.
+- **Protection of Women from Domestic Violence Act, 2005, Section 12** — Aggrieved women can apply to a Judicial Magistrate for protection orders, residence orders, and monetary relief.
+- **Protection of Women from Domestic Violence Act, 2005, Section 18** — Court can issue immediate Protection Orders restraining the abuser.
+- **Bharatiya Nyaya Sanhita, 2023 (BNS), Section 85** — Cruelty towards a woman by her husband or relatives is a non-bailable criminal offense punishable with up to 3 years imprisonment and fine (formerly IPC Section 498A; offenses committed prior to 1 July 2024 remain governed by IPC 498A under Section 358 BNS savings).
+- **Sexual Harassment of Women at Workplace (POSH) Act, 2013** — Mandatory Internal Complaints Committee (ICC) and protection from workplace harassment.
 
 **What You Can Do:**
 1. Contact the **Protection Officer** in your district (appointed under the DV Act).
-2. File an FIR at the nearest police station.
-3. Contact the **Women Helpline: 181** for immediate assistance.
-4. File a complaint with the **Internal Complaints Committee (ICC)** at your workplace (for workplace harassment).
-5. Approach a Magistrate's Court directly under Section 12 of the DV Act.
+2. Approach Sakhi One Stop Centre or file an FIR / Zero FIR at any police station under Section 173 BNSS.
+3. Contact the **Women Helpline: 181** or **Police Emergency: 112** for immediate physical safety.
+4. File a complaint with the **Internal Complaints Committee (ICC)** at your workplace.
+5. Approach a Judicial Magistrate directly under Section 12 of the DV Act with free legal aid.
 
 **Where to Get Help:**
 - **Women Helpline: 181** (24/7)
 - **Police Emergency: 112**
-- **NALSA Helpline: 15100** (free legal aid)
+- **NALSA Helpline: 15100** (24x7 free legal aid)
 - **National Commission for Women: 7827170170**`,
 
   CONSUMER: `**Your Rights:** As a consumer in India, you have the right to be protected against defective goods, deficient services, and unfair trade practices.
@@ -62,26 +62,28 @@ export const MOCK_RESPONSES = {
 - **Online portal**: consumerhelpline.gov.in
 - **NALSA Helpline: 15100** (free legal aid)`,
 
-  CRIMINAL: `**Your Rights:** Every person in India has fundamental rights during arrest and criminal proceedings, guaranteed by the Constitution and the Code of Criminal Procedure.
+  CRIMINAL: `**Your Rights:** Every person in India has fundamental and statutory rights during arrest and criminal proceedings, guaranteed by the Constitution of India and the Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS).
 
 **Relevant Law:**
-- **Code of Criminal Procedure, 1973 (CrPC), Section 41** — Police can only arrest without a warrant in specific circumstances.
-- **CrPC, Section 50** — Police must inform the arrested person of the grounds of arrest and their right to bail.
-- **CrPC, Section 57** — An arrested person cannot be held for more than 24 hours without being produced before a Magistrate.
-- **Article 22 of the Constitution** — Guarantees the right to be informed of grounds of arrest and to consult a lawyer.
-- **Legal Services Authorities Act, 1987** — Guarantees free legal aid to persons in custody.
+- **Bharatiya Nagarik Suraksha Sanhita, 2023 (BNSS), Section 35** — Police cannot arrest arbitrarily; for offenses punishable up to seven years, police must ordinarily issue a formal Notice of Appearance (formerly CrPC Section 41 & 41A).
+- **BNSS, Section 47** — Police must inform the arrested person forthwith of full particulars of the offense and, in bailable offenses, their right to release on bail (formerly CrPC Section 50).
+- **BNSS, Section 58 & Article 22(2) of the Constitution** — An arrested individual cannot be detained in police custody for more than 24 hours (excluding journey time) without being produced before the nearest Judicial Magistrate (formerly CrPC Section 57).
+- **BNSS, Section 173** — Mandates registration of Zero FIR regardless of territorial police station boundaries.
+- **BNSS, Section 531** — All pending criminal trials, investigations, appeals, and inquiries initiated prior to 1 July 2024 remain governed by the Code of Criminal Procedure, 1973.
+- **Legal Services Authorities Act, 1987, Section 12** — Guarantees 100% free legal aid to all persons in custody, including panel advocate representation during remand hearings.
 
 **What You Can Do:**
-1. You have the right to remain silent — you need not answer questions that may incriminate you.
-2. Demand to know the grounds of your arrest.
-3. You can contact a lawyer immediately after arrest.
-4. If detained beyond 24 hours without being produced before a Magistrate, file a **Habeas Corpus** petition in the High Court.
-5. For false FIR, you can file a complaint to the **Superintendent of Police** or approach the **High Court**.
+1. Exercise your right to remain silent — you are protected against self-incrimination under Article 20(3).
+2. Demand to know the exact grounds of arrest and request a signed Arrest Memo with witness signature.
+3. Inform a nominated family member or friend immediately under Section 48 BNSS.
+4. If detained beyond 24 hours without Magistrate production, file a **Habeas Corpus** petition or inform the Duty Magistrate.
+5. Demand free legal representation by a DLSA panel advocate before signing any statement.
 
 **Where to Get Help:**
-- **NALSA Helpline: 15100** (free legal aid — mandatory for persons in custody)
+- **NALSA Helpline: 15100** (24x7 free legal aid — mandatory for custody)
 - **Police Control Room: 112**
-- **National Human Rights Commission: 14433**`,
+- **National Human Rights Commission: 14433**
+- Front Office of your District Legal Services Authority (DLSA)`,
 
   PROPERTY: `**Your Rights:** Indian property laws protect your rights over land, residential property, and inheritance.
 

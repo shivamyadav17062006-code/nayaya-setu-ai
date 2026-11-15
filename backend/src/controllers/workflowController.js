@@ -485,6 +485,61 @@ export async function getWorkflowByCategory(req, res, next) {
 }
 
 // ---------------------------------------------------------------------------
+// GET /api/workflows/user/all-progress — List all progress for logged-in user or session
+// ---------------------------------------------------------------------------
+export async function getUserAllWorkflowProgress(req, res, next) {
+  const userId = req.user?.id || null;
+  const sessionId = req.headers['x-session-id'] || req.query.sessionId || null;
+
+  if (!userId && !sessionId) {
+    return res.status(200).json({
+      success: true,
+      data: [],
+      message: 'No user or session identifier provided.',
+    });
+  }
+
+  try {
+    if (isPrismaConfigured) {
+      const progressList = await prisma.userWorkflowProgress.findMany({
+        where: {
+          OR: [
+            ...(userId ? [{ userId }] : []),
+            ...(sessionId ? [{ sessionId }] : []),
+          ],
+        },
+        include: {
+          workflow: {
+            select: {
+              id: true,
+              title: true,
+              category: true,
+              responsibleAuthority: true,
+              officialPortalUrl: true,
+              estimatedDuration: true,
+              filingFee: true,
+            },
+          },
+        },
+        orderBy: { updatedAt: 'desc' },
+      });
+
+      return res.status(200).json({
+        success: true,
+        data: progressList,
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: [],
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // GET /api/workflows/:id/progress — Get user/session progress for workflow
 // ---------------------------------------------------------------------------
 export async function getWorkflowProgress(req, res, next) {

@@ -21,11 +21,24 @@ import {
   X,
   FileCode,
   Tag,
+  Lock,
+  ShieldAlert,
 } from 'lucide-react';
 import { kmsApi } from '../../api/kms.js';
+import { authApi } from '../../api/auth.js';
+import AuthModal from '../../components/auth/AuthModal.jsx';
 
 export default function LegalKMS() {
+  const [currentUser, setCurrentUser] = useState(() => authApi.getCurrentUser());
+  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview'); // 'overview' | 'acts' | 'review' | 'import' | 'audit'
+
+  // Verify fresh admin profile
+  useEffect(() => {
+    authApi.fetchProfile().then((p) => {
+      if (p) setCurrentUser(p);
+    });
+  }, []);
 
   // Dashboard state
   const [dashboard, setDashboard] = useState(null);
@@ -305,6 +318,46 @@ export default function LegalKMS() {
         return <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-700">DRAFT</span>;
     }
   };
+
+  if (!currentUser || currentUser.role !== 'ADMIN') {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-20 text-center space-y-6">
+        <div className="w-16 h-16 rounded-3xl bg-amber-100 text-amber-700 flex items-center justify-center mx-auto shadow-md">
+          <Lock className="w-8 h-8" />
+        </div>
+        <div className="space-y-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-rose-600 bg-rose-50 px-3 py-1 rounded-full border border-rose-200">
+            Administrative Access Restricted
+          </span>
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+            Authorized Personnel Only
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed">
+            In compliance with Section 9 of NyayaSaathi Architectural Specifications, ordinary citizens cannot access legislative ingestion pipelines, schema reviews, and administrative audit logs.
+          </p>
+        </div>
+        <div className="flex flex-wrap items-center justify-center gap-3 pt-4">
+          <button
+            onClick={() => setAuthModalOpen(true)}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-slate-900 text-white font-semibold text-xs shadow-md hover:bg-slate-800 transition-colors cursor-pointer"
+          >
+            <Lock className="w-4 h-4 text-amber-400" /> Sign In as Administrator
+          </button>
+          <a
+            href="/"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-white border border-slate-300 text-slate-700 font-semibold text-xs shadow-sm hover:bg-slate-50 transition-colors"
+          >
+            Return to Citizen Portal
+          </a>
+        </div>
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          onAuthSuccess={(u) => setCurrentUser(u)}
+        />
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

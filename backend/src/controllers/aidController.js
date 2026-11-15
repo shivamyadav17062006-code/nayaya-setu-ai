@@ -1,5 +1,6 @@
 import { prisma, isPrismaConfigured } from '../lib/prisma.js';
 import { supabaseService } from '../services/supabaseService.js';
+import { legalAidEligibilityService } from '../services/legalAidEligibilityService.js';
 
 const FALLBACK_PROVIDERS = [
   {

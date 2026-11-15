@@ -19,7 +19,7 @@
     "db:check": "node scripts/checkSupabase.js",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
-    "test": "jest --passWithNoTests"
+    "test": "NODE_OPTIONS=--experimental-vm-modules jest --passWithNoTests"
   },
   "dependencies": {
     "@prisma/client": "^5.9.1",

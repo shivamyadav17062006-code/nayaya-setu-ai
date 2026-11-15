@@ -36,6 +36,18 @@ export const workflowsApi = {
     return data?.data || data;
   },
 
+  getAllProgress: async () => {
+    const sessionId = getSessionId();
+    try {
+      const { data } = await apiClient.get('/workflows/user/all-progress', {
+        headers: { 'x-session-id': sessionId }
+      });
+      return data?.data || [];
+    } catch {
+      return [];
+    }
+  },
+
   getProgress: async (workflowId) => {
     const sessionId = getSessionId();
     try {

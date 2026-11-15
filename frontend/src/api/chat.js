@@ -7,7 +7,7 @@ function newId() {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
 }
 
-function toCitations(sources = []) {
+export function toCitations(sources = []) {
   return sources.map((source) => ({
     id: newId(),
     actName: source.act ?? "Indian Statute",
@@ -73,9 +73,22 @@ export const chatApi = {
     return data;
   },
 
-  getSessions: async () => {
-    const { data } = await apiClient.get("/chat/sessions");
+  getSessions: async (sessionIds = []) => {
+    const params = {};
+    if (Array.isArray(sessionIds) && sessionIds.length > 0) {
+      params.sessionIds = sessionIds.join(',');
+    }
+    const { data } = await apiClient.get("/chat/sessions", { params });
     return data;
+  },
+
+  syncConversations: async (sessionIds = []) => {
+    try {
+      const { data } = await apiClient.post("/chat/sync", { sessionIds });
+      return data;
+    } catch {
+      return null;
+    }
   },
 
   deleteSession: async (sessionId) => {

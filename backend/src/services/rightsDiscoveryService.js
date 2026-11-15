@@ -184,7 +184,7 @@ export class RightsDiscoveryService {
       followUpQuestions.push({
         id: 'magistrate_production',
         question: 'Has the person been produced before a Judicial Magistrate within 24 hours of arrest?',
-        explanation: 'Article 22(2) of the Constitution and Section 57 CrPC mandate production before a Magistrate within 24 hours excluding journey time.',
+        explanation: 'Article 22(2) of the Constitution and Section 58 BNSS (formerly Section 57 CrPC) mandate production before a Magistrate within 24 hours excluding journey time.',
         options: ['Not produced and over 24 hours', 'Produced before Magistrate', 'Detained less than 24 hours'],
       });
     }

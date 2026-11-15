@@ -5,7 +5,7 @@ export const legislationApi = {
    * List Central Acts with search, pagination, and filters
    */
   listActs: async (params = {}) => {
-    const res = await client.get('/api/legislation/acts', { params });
+    const res = await client.get('/legislation/acts', { params });
     return res.data;
   },
 
@@ -13,7 +13,7 @@ export const legislationApi = {
    * Get single Act or Rule by ID
    */
   getActById: async (id) => {
-    const res = await client.get(`/api/legislation/acts/${id}`);
+    const res = await client.get(`/legislation/acts/${id}`);
     return res.data;
   },
 
@@ -21,7 +21,7 @@ export const legislationApi = {
    * List Subordinate Rules, Regulations, and Notifications
    */
   listRules: async (params = {}) => {
-    const res = await client.get('/api/legislation/rules', { params });
+    const res = await client.get('/legislation/rules', { params });
     return res.data;
   },
 
@@ -29,7 +29,7 @@ export const legislationApi = {
    * Fetch Source Register
    */
   getSourceRegister: async () => {
-    const res = await client.get('/api/legislation/source-register');
+    const res = await client.get('/legislation/source-register');
     return res.data;
   },
 
@@ -37,7 +37,7 @@ export const legislationApi = {
    * Get Verification Queue
    */
   getVerificationQueue: async (params = {}) => {
-    const res = await client.get('/api/legislation/verification-queue', { params });
+    const res = await client.get('/legislation/verification-queue', { params });
     return res.data;
   },
 
@@ -45,7 +45,7 @@ export const legislationApi = {
    * Update Verification Status (e.g. AWAITING_REVIEW -> VERIFIED -> PUBLISHED)
    */
   updateVerificationStatus: async (id, payload) => {
-    const res = await client.patch(`/api/legislation/verify/${id}`, payload);
+    const res = await client.patch(`/legislation/verify/${id}`, payload);
     return res.data;
   },
 
@@ -53,7 +53,7 @@ export const legislationApi = {
    * Coverage & Telemetry Report
    */
   getCoverageReport: async () => {
-    const res = await client.get('/api/legislation/reports/coverage');
+    const res = await client.get('/legislation/reports/coverage');
     return res.data;
   },
 };

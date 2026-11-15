@@ -3,8 +3,8 @@ import jwt from 'jsonwebtoken';
 import { prisma, isPrismaConfigured } from '../lib/prisma.js';
 import { createError } from '../middleware/errorHandler.js';
 
-const JWT_SECRET = process.env.JWT_SECRET || 'nyayasaathi-secret-key-123';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+const getJwtSecret = () => process.env.JWT_SECRET || 'your-super-secret-jwt-key-change-in-production';
+const getJwtExpiresIn = () => process.env.JWT_EXPIRES_IN || '7d';
 
 /**
  * Helper to strip password and sensitive fields from user object
@@ -63,8 +63,8 @@ export async function registerUser(req, res, next) {
 
     const token = jwt.sign(
       { userId: user.id, role: user.role, email: user.email },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      getJwtSecret(),
+      { expiresIn: getJwtExpiresIn() }
     );
 
     res.status(201).json({
@@ -121,8 +121,8 @@ export async function loginUser(req, res, next) {
 
     const token = jwt.sign(
       { userId: user.id, role: user.role, email: user.email },
-      JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      getJwtSecret(),
+      { expiresIn: getJwtExpiresIn() }
     );
 
     res.status(200).json({
@@ -170,6 +170,48 @@ export async function getCurrentUser(req, res, next) {
     res.status(200).json({
       success: true,
       data: { user },
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+/**
+ * PATCH /api/auth/profile
+ * Allows citizen to update their name, state of residence, and preferred language.
+ */
+export async function updateProfile(req, res, next) {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, error: 'Authentication required.' });
+    }
+
+    const { name, state, language } = req.body;
+    const updateData = {};
+    if (typeof name === 'string') updateData.name = name.trim();
+    if (typeof state === 'string') updateData.state = state.trim();
+    if (typeof language === 'string') updateData.language = language.trim().toLowerCase();
+
+    const updatedUser = await prisma.user.update({
+      where: { id: req.user.id },
+      data: updateData,
+      select: {
+        id: true,
+        email: true,
+        phone: true,
+        name: true,
+        state: true,
+        language: true,
+        role: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Profile updated successfully.',
+      data: { user: updatedUser },
     });
   } catch (err) {
     next(err);

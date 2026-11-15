@@ -10,6 +10,7 @@ import {
   handleChat,
   getDbStatus,
   listConversations,
+  syncConversations,
   createConversation,
   getConversation,
   updateConversation,
@@ -24,6 +25,9 @@ router.get('/db-status', getDbStatus);
 
 // Main conversational AI route
 router.post('/', optionalAuth, validate(chatMessageSchema, 'body'), handleChat);
+
+// Sync / claim anonymous conversations for authenticated user
+router.post('/sync', optionalAuth, syncConversations);
 
 // Conversation management (Standard REST /api/chat/conversations)
 router.get('/conversations', optionalAuth, listConversations);
